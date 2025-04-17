@@ -9,3 +9,6 @@ Extract keywords from slack messages and emails and automate weekly emails with 
 - Data Processing Layer (PySpark, PyDoc)
 - LLM Layer (Claude/ChatGPT API)
 - Server/Database (AWS, GCP)
+
+# Resources
+- Weekly Updates: https://docs.google.com/document/d/14xlioL8x9TDKSeNkuvv2ZztGRhxHaSIjMrBktPaLzaE/edit?usp=sharing
