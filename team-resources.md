@@ -26,16 +26,14 @@
 
 ---
 
-## 💬 Communication Channels & Policies
+## Communication Channels & Policies
 
-| Tool        | Purpose                             | Policy |
-|-------------|-------------------------------------|--------|
-| Slack       | Daily team communication            | - All team members must keep notifications on  
-                                                   - Use `#intellicue` for announcements and deadlines  
-                                                   - Tag team members for direct action items |
-| GitHub Issues | Task tracking & bug reports        | - All code changes should be tied to an issue  
-                                                   - Close issues only after code is merged |
-| Google Drive | Shared docs & collaboration         | - All team docs must be version controlled |
+| Tool         | Purpose                         | Policy                                                                                                  |
+|--------------|----------------------------------|---------------------------------------------------------------------------------------------------------|
+| Slack        | Daily team communication         | - All team members must keep notifications on<br>- Use `#intellicue` for announcements and deadlines<br>- Tag team members for direct action items |
+| GitHub Issues| Task tracking & bug reports      | - All code changes should be tied to an issue<br>- Close issues only after code is merged               |
+| Google Drive | Shared docs & collaboration      | - All team docs must be version controlled                                                              |
+
 
 ---
 
