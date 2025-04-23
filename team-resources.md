@@ -17,7 +17,7 @@
 | Artifact                       | Description                                 | Link |
 |--------------------------------|---------------------------------------------|------|
 | GitHub Repo                    | Source code & documentation                 | [GitHub Repo](https://github.com/amgupta2/IntelliCue) |
-| Weekly Updates                 | Timestamped Updates                         | [Weekly Updates]([https://github.com/amgupta2/IntelliCue](https://docs.google.com/document/d/14xlioL8x9TDKSeNkuvv2ZztGRhxHaSIjMrBktPaLzaE/edit?usp=sharing)) |
+| Weekly Updates                 | Timestamped Updates                         | [Weekly Updates]([https://github.com/amgupta2/IntelliCue](https://docs.google.com/document/d/14xlioL8x9TDKSeNkuvv2ZztGRhxHaSIjMrBktPaLzaE/edit?usp=sharing) |
 | Project Proposal Doc           | Initial pitch and Idea                      | [Google Doc - Proposal](https://drive.google.com/file/d/1CFVKO8Ep8AFiTyTHScbO2oxh6IPlhvFn/view) |
 | Requirements and Team Policies | Living Document for Techinical Approach     | [Google Doc - Requirements](https://docs.google.com/document/d/1gAFhhVxmP1W6-If2BCgHGcfAQwVaOZMq96XCnqS2454/edit?usp=sharing) |
 | Architecture Diagram           | Slack app to AWS pipeline flowchart         | TBD |
