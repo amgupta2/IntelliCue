@@ -1,1 +1,3 @@
-
+slack-bolt
+python-dotenv
+boto3
