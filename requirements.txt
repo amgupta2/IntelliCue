@@ -7,7 +7,6 @@ boto3
 pytest
 pytest-cov
 flake8
-mypy
 moto
 responses
 
