@@ -1,3 +1,11 @@
+# Runtime dependencies
 slack-bolt
 python-dotenv
 boto3
+
+# Testing and CI
+pytest
+pytest-cov
+flake8
+moto
+responses
