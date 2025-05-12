@@ -9,3 +9,4 @@ pytest-cov
 flake8
 moto
 responses
+pytest-mock

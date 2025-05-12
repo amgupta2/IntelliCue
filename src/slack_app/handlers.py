@@ -1,57 +1,50 @@
+import os
+import json
 from slack_bolt import App
 from slack_sdk import WebClient
-import json
+from src.slack_app.client import get_joined_channels, format_message
 
 
-def register_handlers(app: App):
-    @app.message("hello")
-    def message_hello(message, say):
-        say(
-            blocks=[
-                {
-                    "type": "section",
-                    "text": {"type": "mrkdwn", "text":
-                             f"Hey there <@{message['user']}>!"},
-                    "accessory": {
-                        "type": "button",
-                        "text": {"type": "plain_text", "text": "Click Me"},
-                        "action_id": "button_click"
-                    }
-                }
-            ],
-            text=f"Hey there <@{message['user']}>!"
-        )
-
-    def fetch_all_messages(client: WebClient, channel: str):
-        messages = []
-        cursor = None
-
-        while True:
-            response = client.conversations_history(
-                channel=channel, limit=200, cursor=cursor)
-            messages.extend(response.get("messages", []))
-            cursor = response.get("response_metadata", {}).get("next_cursor")
-            if not cursor:
-                break
-
-        return messages
-
-    @app.action("button_click")
-    def action_button_click(body, ack, say, client: WebClient):
+def register_handlers(app: App, client: WebClient):
+    @app.command("/generate_feedback")
+    def handle_generate_feedback(ack, body, respond, logger):
         ack()
-        other_channel = "C08PH0ZP82E"
 
-        all_messages = fetch_all_messages(client, other_channel)
-        msg_str = json.dumps(all_messages, indent=2)
+        try:
+            all_messages = []
+            channels = get_joined_channels(client)
 
-        # Split into 3800-character chunks to avoid hitting char limit
-        chunk_size = 3800
-        chunks = [msg_str[i:i+chunk_size] for i in
-                  range(0, len(msg_str), chunk_size)]
+            for channel in channels:
+                channel_id = channel["id"]
+                channel_name = channel["name"]
+                cursor = None
 
-        for i, chunk in enumerate(chunks):
-            prefix = (
-                "*Full message object"
-                f" from <#{other_channel}> — Part {i + 1}/{len(chunks)}:*"
+                while True:
+                    history = client.conversations_history(
+                        channel=channel_id, cursor=cursor, limit=200)
+                    messages = history.get("messages", [])
+
+                    for msg in messages:
+                        all_messages.append(
+                            format_message(msg, channel_id, channel_name))
+
+                    cursor = history.get(
+                        "response_metadata", {}).get("next_cursor")
+                    if not cursor:
+                        break
+
+            # Save to JSON
+            output_dir = "output"
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, "messages.json")
+            with open(output_path, "w") as f:
+                json.dump(all_messages, f, indent=2)
+
+            respond(
+                f"Extracted {len(all_messages)} messages from {len(channels)}"
+                f" channels and saved to `{output_path}`."
             )
-            say(f"{prefix}\n```{chunk}```")
+
+        except Exception as e:
+            logger.error(f"Failed to generate insights: {e}")
+            respond("Failed to extract messages due to an error.")
