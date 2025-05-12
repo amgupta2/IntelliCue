@@ -1,7 +1,6 @@
-import os
-import json
 from slack_bolt import App
 from slack_sdk import WebClient
+import json
 
 def register_handlers(app: App):
     @app.message("hello")
@@ -21,15 +20,31 @@ def register_handlers(app: App):
             text=f"Hey there <@{message['user']}>!"
         )
 
+    def fetch_all_messages(client: WebClient, channel: str):
+        messages = []
+        cursor = None
+
+        while True:
+            response = client.conversations_history(channel=channel, limit=200, cursor=cursor)
+            messages.extend(response.get("messages", []))
+            cursor = response.get("response_metadata", {}).get("next_cursor")
+            if not cursor:
+                break
+
+        return messages
+
     @app.action("button_click")
     def action_button_click(body, ack, say, client: WebClient):
         ack()
         other_channel = "C08PH0ZP82E"
-        result = client.conversations_history(channel=other_channel, limit=1)
-        messages = result.get("messages", [])
-        msg_str = json.dumps(messages[0], indent=2) if messages else "No messages found."
 
-        if len(msg_str) > 3900:
-            msg_str = msg_str[:3900] + "\n... [truncated]"
+        all_messages = fetch_all_messages(client, other_channel)
+        msg_str = json.dumps(all_messages, indent=2)
 
-        say(f"*Full message object from <#{other_channel}>:*\n```{msg_str}```")
+        # Split into 3800-character chunks to avoid hitting Slack's 4000 char limit
+        chunk_size = 3800
+        chunks = [msg_str[i:i+chunk_size] for i in range(0, len(msg_str), chunk_size)]
+
+        for i, chunk in enumerate(chunks):
+            prefix = f"*Full message object from <#{other_channel}> — Part {i+1}/{len(chunks)}:*"
+            say(f"{prefix}\n```{chunk}```")
