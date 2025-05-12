@@ -1,4 +1,3 @@
-import pytest
 from src.slack_app import client
 from slack_sdk.errors import SlackApiError
 
@@ -24,6 +23,7 @@ def test_format_message_basic():
     assert result["sent_by_bot_id"] is None
     assert result["last_edited"] is None
 
+
 def test_format_message_thread_reply():
     raw_msg = {
         "user": "U123",
@@ -35,6 +35,7 @@ def test_format_message_thread_reply():
     result = client.format_message(raw_msg, "C456")
     assert result["parent_thread_ts"] == "1234567890.00000"
     assert result["is_thread_reply"] is True
+
 
 def test_format_message_with_reactions_and_edit():
     raw_msg = {
@@ -58,6 +59,7 @@ def test_format_message_with_reactions_and_edit():
         "edit_timestamp": "1234567891.00000"
     }
 
+
 def test_get_joined_channels_success(mocker):
     mock_client = mocker.Mock()
     mock_client.conversations_list.return_value = {
@@ -73,8 +75,11 @@ def test_get_joined_channels_success(mocker):
         {"id": "C3", "name": "dev"}
     ]
 
+
 def test_get_joined_channels_error(mocker):
     mock_client = mocker.Mock()
-    mock_client.conversations_list.side_effect = SlackApiError("API error", response=None)
+    mock_client.conversations_list.side_effect = SlackApiError(
+        "API error", response=None
+    )
     channels = client.get_joined_channels(mock_client)
     assert channels == []

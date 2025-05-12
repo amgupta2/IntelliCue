@@ -1,9 +1,11 @@
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
+
 def get_joined_channels(client: WebClient):
     try:
-        result = client.conversations_list(types="public_channel,private_channel")
+        result = client.conversations_list(
+            types="public_channel,private_channel")
 
         return [
             {"id": channel["id"], "name": channel["name"]}
@@ -14,6 +16,7 @@ def get_joined_channels(client: WebClient):
         print(f"Error fetching conversations: {e}")
         return []
 
+
 def format_message(raw_msg, channel_id, channel_name=None):
     return {
         "channel_id": channel_id,
@@ -23,7 +26,8 @@ def format_message(raw_msg, channel_id, channel_name=None):
         "message_type": raw_msg.get("type"),
         "timestamp": raw_msg.get("ts"),
         "parent_thread_ts": raw_msg.get("thread_ts", raw_msg.get("ts")),
-        "is_thread_reply": raw_msg.get("thread_ts", raw_msg.get("ts")) != raw_msg.get("ts"),
+        "is_thread_reply": raw_msg.get("thread_ts", raw_msg.get("ts"))
+        != raw_msg.get("ts"),
         "reactions": [
             {
                 "name": r.get("name"),
@@ -39,4 +43,3 @@ def format_message(raw_msg, channel_id, channel_name=None):
             } if "edited" in raw_msg else None
         )
     }
-
