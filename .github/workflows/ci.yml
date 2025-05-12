@@ -25,6 +25,9 @@ jobs:
         pip install -r requirements.txt
         pip install pytest flake8 mypy pytest-cov
 
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/src" >> $GITHUB_ENV
+
     - name: Confirm CI setup success
       run: echo "GitHub Actions CI pipeline is running successfully"
 
