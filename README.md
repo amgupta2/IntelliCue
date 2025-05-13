@@ -29,9 +29,9 @@ Extract keywords from slack messages and emails and automate weekly emails with 
   - Slack API dashboard (for API tokens)
 
 *Step 1:*  
-• Run: `git checkout demo-branch`  
-• Then: `git pull` to ensure you're up to date  
-• Install dependencies: `pip install -r requirements.txt`
+- Run: `git checkout demo-branch`
+- Then: `git pull` to ensure you're up to date
+- Install dependencies: `pip install -r requirements.txt`
 
 *Step 2:*  
 Create a `.env` file in the *root* of the project directory. This will hold your API keys.
@@ -54,9 +54,9 @@ Navigate to https://api.slack.com/apps and do the following:
 *Step 4:*  
 Navigate to https://aistudio.google.com/app/
 
-• Open sidebar → Click *Get API Key*  
-• On the *API Keys* page, click *Create API Key*  
-• Add to `.env`:  
+- Open sidebar → Click *Get API Key*
+- On the *API Keys* page, click *Create API Key*
+- Add to `.env`:  
   `GEMINI_API_KEY=<your_key_here>`
 
 *Step 5:*  
@@ -65,12 +65,12 @@ With all three keys in your `.env`, run the app from the root directory:
 
 *Step 6:*  
 Once the app is running:
-• Open the IntelliCue Slack workspace (browser or app)  
-• Send a message about your work experience as if you are an employee  
-• Trigger analysis by using the slash command:  
+- Open the IntelliCue Slack workspace (browser or app)
+- Send a message about your work experience as if you are an employee
+- Trigger analysis by using the slash command:  
   `/generate_feedback`
 
-• IntelliCue will respond with feedback and insights in the `#all-intellicue` channel
+IntelliCue will respond with feedback and insights in the `#all-intellicue` channel
 
 
 ## Resources
