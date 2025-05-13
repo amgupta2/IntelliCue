@@ -27,13 +27,12 @@ def process_with_gemini(messages_text):
     print(prompt)
     response = model.generate_content(prompt)
     return response.text.strip()
-    return ""
 
 
 def generate_insights_from_json(json_data: list[dict]) -> dict:
     """
     Accepts a list of message objects with message_text and sentiment_value,
-    prepares them for analysis, and returns Gemini's insights.
+    prepares them for analysis, and returns Gemini's insights in a structured format.
     """
     combined_entries = ""
     for entry in json_data:
@@ -41,21 +40,10 @@ def generate_insights_from_json(json_data: list[dict]) -> dict:
         sentiment = entry.get("sentiment_score", "").strip()
         combined_entries += f"- Message: {text}\n  Sentiment: {sentiment}\n\n"
 
-    # Generate insights dynamically using Gemini
+
     insights = process_with_gemini(combined_entries)
 
-    # Dynamically format the insights for Slack
-    formatted_insights = f"""
-    *Insights Generated from Slack Messages*
-
-    {insights}
-
-    *Actionable Next Steps*
-    Please review the above insights
-    and take appropriate actions to address the identified issues.
-    """
-
     return {
-        "insights": insights.strip(),
-        "slack_message": formatted_insights.strip()
+        "insights": insights.strip()
     }
+

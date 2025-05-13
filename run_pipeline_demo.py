@@ -5,6 +5,7 @@ from slack_bolt import App
 from dotenv import load_dotenv
 from src.pipeline.insight import generate_insights_from_json
 import json
+from src.pipeline.pdf_generation import PDFGenerator
 
 
 def send_slack_message(app_client, message, channel="#general"):
@@ -63,10 +64,29 @@ def run_pipeline():
 
     insights_data = generate_insights_from_json(data)
 
-    # Step 4: Send insights to Slack in Formatted Message
-    print("Sending insights to Slack...")
-    send_slack_message(app_client, insights_data["slack_message"],
-                       channel="#all-intellicue")
+    print(insights_data)
+
+
+    # Generate the PDF
+    pdf_output_path = "output/feedback_report.pdf"
+    print("Generating PDF report...")
+    pdf_generator = PDFGenerator(pdf_output_path)
+    pdf_generator.generate_report(insights_data)
+    print(f"PDF report generated at {pdf_output_path}")
+    # Send the PDF to Slack
+    with open(pdf_output_path, "rb") as pdf_file:
+        response = app_client.files_upload_v2(
+            channel="C08PH0ZMY7L",
+            file=pdf_file,
+            title="Feedback Report",
+            filename="feedback_report.pdf"
+        )
+        print(f"PDF sent to Slack channel #all-intellicue, response: {response}")
+
+    # # Step 4: Send insights to Slack in Formatted Message
+    # print("Sending insights to Slack...")
+    # send_slack_message(app_client, insights_data["slack_message"],
+    #                    channel="#all-intellicue")
 
     print("Pipeline execution completed.")
 
