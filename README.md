@@ -98,7 +98,7 @@ python run_pipeline_demo.py
 
 ---
 
-## Notes
+### Notes
 
 - Make sure your virtual environment is activated before installing requirements or running the app.
 - If you encounter issues with API tokens or permissions, double-check that your Slack app has been granted the correct scopes.
