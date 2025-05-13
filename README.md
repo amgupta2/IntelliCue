@@ -22,12 +22,6 @@ Extract keywords from slack messages and emails and automate weekly emails with 
 | Dev Tools         | `tools/`        | Scripts for deploying Lambdas, mocking Slack events, and running pipelines locally. |
 
 
-# IntelliCue - Local Demo Setup
-
-This guide walks you through running IntelliCue locally using the demo branch. Follow each step carefully to get your environment set up and ready for testing the Slack-based feedback generation pipeline.
-
----
-
 ## How to Run / Local Setup (DEMO CODE)
 
 ### Step 0: Access Setup
