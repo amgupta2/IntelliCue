@@ -22,55 +22,94 @@ Extract keywords from slack messages and emails and automate weekly emails with 
 | Dev Tools         | `tools/`        | Scripts for deploying Lambdas, mocking Slack events, and running pipelines locally. |
 
 
+# IntelliCue - Local Demo Setup
+
+This guide walks you through running IntelliCue locally using the demo branch. Follow each step carefully to get your environment set up and ready for testing the Slack-based feedback generation pipeline.
+
+---
+
 ## How to Run / Local Setup (DEMO CODE)
 
-*Step 0:* Contact the IntelliCue team via Slack to get added to:
-  - Development workspace
-  - Slack API dashboard (for API tokens)
+### Step 0: Access Setup
+Contact the IntelliCue team via Slack to be added to:
+- The development Slack workspace
+- The Slack API dashboard (for obtaining API tokens)
 
-*Step 1:*  
-- Run: `git checkout demo-branch`
-- Then: `git pull` to ensure you're up to date
-- Install dependencies: `pip install -r requirements.txt`
+---
 
-*Step 2:*  
-Create a `.env` file in the *root* of the project directory. This will hold your API keys.
+### Step 1: Get the Demo Code
+```bash
+git checkout demo-branch
+git pull
+pip install -r requirements.txt
+```
 
-*Step 3:*  
-Navigate to https://api.slack.com/apps and do the following:
+---
 
-  *3.1* Enter the IntelliCue bot API dashboard  
-  *3.2* Under *Basic Information* → *App-Level Tokens*  
-    - Click on `WebSocket`, copy the token  
-    - Add to `.env`:  
-      `SLACK_APP_TOKEN=<your_token_here>`
+### Step 2: Create a `.env` File
+In the root directory of the project, create a `.env` file to hold the required API keys.
 
-  *3.3* Under *OAuth & Permissions*  
-    - Scroll to *OAuth Tokens*  
-    - Copy the Bot User OAuth Token  
-    - Add to `.env`:  
-      `SLACK_BOT_TOKEN=<your_token_here>`
+---
 
-*Step 4:*  
-Navigate to https://aistudio.google.com/app/
+### Step 3: Slack API Keys
 
-- Open sidebar → Click *Get API Key*
-- On the *API Keys* page, click *Create API Key*
-- Add to `.env`:  
-  `GEMINI_API_KEY=<your_key_here>`
+1. Go to [Slack API Dashboard](https://api.slack.com/apps)
+2. Enter the IntelliCue bot's app dashboard
+3. On the **Basic Information** tab:
+   - Scroll to **App-Level Tokens**
+   - Click on `WebSocket`
+   - Copy the token and add it to your `.env` file:
+     ```
+     SLACK_APP_TOKEN=<your_token_here>
+     ```
+4. On the **OAuth & Permissions** tab:
+   - Scroll to **OAuth Tokens**
+   - Copy the **Bot User OAuth Token** and add it to your `.env` file:
+     ```
+     SLACK_BOT_TOKEN=<your_token_here>
+     ```
 
-*Step 5:*  
-With all three keys in your `.env`, run the app from the root directory:  
-`python run_pipeline_demo.py`
+---
 
-*Step 6:*  
-Once the app is running:
-- Open the IntelliCue Slack workspace (browser or app)
-- Send a message about your work experience as if you are an employee
-- Trigger analysis by using the slash command:  
-  `/generate_feedback`
+### Step 4: Gemini API Key
 
-IntelliCue will respond with feedback and insights in the `#all-intellicue` channel
+1. Go to [Google AI Studio](https://aistudio.google.com/app/)
+2. Open the sidebar and click **Get API Key**
+3. On the **API Keys** page, click **Create API Key**
+4. Add the key to your `.env` file:
+   ```
+   GEMINI_API_KEY=<your_key_here>
+   ```
+
+---
+
+### Step 5: Run the App
+
+With all three keys configured in your `.env`, start the app from the root directory:
+
+```bash
+python run_pipeline_demo.py
+```
+
+---
+
+### Step 6: Use the Slack App
+
+1. In the IntelliCue Slack workspace, send a message about your work experience (acting as an employee).
+2. Trigger the analysis using the following Slack slash command:
+   ```
+   /generate_feedback
+   ```
+3. IntelliCue will process the message and respond with feedback and actionable insights in the `#all-intellicue` channel.
+
+---
+
+## Notes
+
+- Make sure your virtual environment is activated before installing requirements or running the app.
+- If you encounter issues with API tokens or permissions, double-check that your Slack app has been granted the correct scopes.
+- The Slack app runs in socket mode; ensure your network does not block WebSocket connections.
+
 
 
 ## Resources
