@@ -1,6 +1,7 @@
 import json
 import sys
 from datetime import datetime
+from pathlib import Path
 
 """
 An object used to represent a message in the Slack export before it is passed 
@@ -37,9 +38,14 @@ class UnscoredMessage:
             "parent_thread_ts": self.parent_thread_ts,
         }
 
+
 """
 A class used to parse the Slack export JSON file and extract messages.
 It loads the messages from the file and creates UnscoredMessage objects.
+
+- checks if the file is a valid JSON file
+- filters out non-message types and automated messages
+- checks if a message is a thread reply
 """
 class MessageParser:
     def __init__(self, file_path):
@@ -56,24 +62,35 @@ class MessageParser:
             with open(self.file_path, 'r') as file:
                 # Load JSON data
                 data = json.load(file)
+
                 # Run through all messages
                 for message in data:
                     # Skip non-messages and automated messages
                     if message['message_type'] != 'message' or message['subtype'] is not None or message['sent_by_bot_id'] is not None:
                         continue
 
+                    # Create new UnscoredMessage object
                     msg = None
-                    if message['is_thread_reply'] == True:
-                        
-                    # Create UnscoredMessage object
-                    msg = UnscoredMessage(
-                        message_text=message['message_text'],
-                        reactions=message['reactions'],
-                        channel_id=message['channel_id'],
-                        channel_name=message['channel_name'],
-
-                        # parent=message.get('parent_user_id') -- for now, we are not using parent
-                    )
+                    if message['is_thread_reply']:
+                        msg = UnscoredMessage(
+                            message_text=message['message_text'],
+                            reactions=message['reactions'],
+                            channel_id=message['channel_id'],
+                            channel_name=message['channel_name'],
+                            timestamp=message['timestamp'],
+                            is_thread_reply=True,
+                            parent_thread_ts=message['parent_thread_ts']
+                        )
+                    else:
+                        msg = UnscoredMessage(
+                            message_text=message['message_text'],
+                            reactions=message['reactions'],
+                            channel_id=message['channel_id'],
+                            channel_name=message['channel_name'],
+                            timestamp=message['timestamp'],
+                            is_thread_reply=False,
+                            parent_thread_ts=None  # No parent thread timestamp for non-thread replies
+                        )
                     # Add to unscored messages list
                     self.unscored_messages.append(msg)
 
@@ -85,6 +102,13 @@ class MessageParser:
             sys.exit(1)
 
         return self.unscored_messages
+    
+    def get_unscored_messages_json(self):
+        """
+        Return the unscored messages to a JSON file.
+        """
+        output_path = Path(self.file_path).with_suffix('.json')
+
 
 def main():
     # Check if the file path is provided
