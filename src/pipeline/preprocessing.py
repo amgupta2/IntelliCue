@@ -5,24 +5,36 @@ from datetime import datetime
 """
 An object used to represent a message in the Slack export before it is passed 
 through the Sentiment Analysis LLM.
+
+Fields:
+- message_text: The text of the message.
+- reactions: The reactions to the message.
+- channel_id: The unique identifier of the channel.
+- channel_name: The name of the channel.
+- timestamp: The timestamp of the message (also used as a unique identifier).
+- is_thread_reply: whether the message is a reply in a thread.
+- parent_thread_ts: The timestamp of the parent thread if applicable.
 """
 class UnscoredMessage:
-    def __init__(self, id, user, team, text, timestamp, parent=None):
-        self.id = id
-        self.user = user
-        self.team = team
-        self.text = text
+    def __init__(self, message_text, reactions, channel_id, channel_name, timestamp, is_thread_reply, parent_thread_ts):
+        self.message_text = message_text
+        self.reactions = reactions
+        self.channel_id = channel_id
+        self.channel_name = channel_name
         self.timestamp = float(timestamp)
-        self.parent = parent
+        self.is_thread_reply = is_thread_reply
+        self.parent_thread_ts = parent_thread_ts
 
 
     def to_dict(self):
         return {
-            "id": self.id,
-            "text": self.text,
+            "message_text": self.message_text,
+            "reactions": self.reactions,
+            "channel_id": self.channel_id,
+            "channel_name": self.channel_name,
             "timestamp": datetime.fromtimestamp(self.timestamp).strftime('%Y-%m-%d %H:%M:%S'),
-            "user": self.user,
-            "parent": self.parent if self.parent else None,
+            "is_thread_reply": self.is_thread_reply,
+            "parent_thread_ts": self.parent_thread_ts,
         }
 
 """
@@ -45,20 +57,25 @@ class MessageParser:
                 # Load JSON data
                 data = json.load(file)
                 # Run through all messages
-                messsages = data['messages']
-                for message in messsages:
-                    if message['type'] == 'message' and 'subtype' not in message:
-                        # Create UnscoredMessage object
-                        msg = UnscoredMessage(
-                            id=message['client_msg_id'],
-                            user=message['user'],
-                            team=message['team'],
-                            text=message['text'],
-                            timestamp=message['ts'],
-                            # parent=message.get('parent_user_id') -- for now, we are not using parent
-                        )
-                        # Add to unscored messages list
-                        self.unscored_messages.append(msg)
+                for message in data:
+                    # Skip non-messages and automated messages
+                    if message['message_type'] != 'message' or message['subtype'] is not None or message['sent_by_bot_id'] is not None:
+                        continue
+
+                    msg = None
+                    if message['is_thread_reply'] == True:
+                        
+                    # Create UnscoredMessage object
+                    msg = UnscoredMessage(
+                        message_text=message['message_text'],
+                        reactions=message['reactions'],
+                        channel_id=message['channel_id'],
+                        channel_name=message['channel_name'],
+
+                        # parent=message.get('parent_user_id') -- for now, we are not using parent
+                    )
+                    # Add to unscored messages list
+                    self.unscored_messages.append(msg)
 
         except json.JSONDecodeError:
             print(f"Error: The file {self.file_path} is not a valid JSON file.")
