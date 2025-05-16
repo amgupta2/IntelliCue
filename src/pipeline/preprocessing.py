@@ -5,7 +5,7 @@ from pathlib import Path
 
 """
 An object used to represent a message in the Slack export before it is passed 
-through the Sentiment Analysis LLM.
+through the Sentiment Analysis Model.
 
 Fields:
 - message_text: The text of the message.
@@ -33,7 +33,7 @@ class UnscoredMessage:
             "reactions": self.reactions,
             "channel_id": self.channel_id,
             "channel_name": self.channel_name,
-            "timestamp": datetime.fromtimestamp(self.timestamp).strftime('%Y-%m-%d %H:%M:%S'),
+            "timestamp": str(self.timestamp),
             "is_thread_reply": self.is_thread_reply,
             "parent_thread_ts": self.parent_thread_ts,
         }
@@ -46,20 +46,24 @@ It loads the messages from the file and creates UnscoredMessage objects.
 - checks if the file is a valid JSON file
 - filters out non-message types and automated messages
 - checks if a message is a thread reply
+
+Also groups messages by channel and parent thread timestamp.
 """
 class MessageParser:
-    def __init__(self, file_path):
-        self.file_path = file_path
-        self.unscored_messages = []
+    def __init__(self, input_path, output_path):
+        self.input_path = input_path
+        self.output_path = output_path
+        self.ungrouped_messages = []
+        self.grouped_messages = {}
 
+    """
+    Load messages from the file and return a list of dictionaries.
+    """
     def load_messages(self):
-        """
-        Load messages from the file and return a list of dictionaries.
-        """
         # Open JSON file
         data = {}
         try:
-            with open(self.file_path, 'r') as file:
+            with open(self.input_path, 'r') as file:
                 # Load JSON data
                 data = json.load(file)
 
@@ -89,41 +93,78 @@ class MessageParser:
                             channel_name=message['channel_name'],
                             timestamp=message['timestamp'],
                             is_thread_reply=False,
-                            parent_thread_ts=None  # No parent thread timestamp for non-thread replies
+                            parent_thread_ts=message['timestamp']
                         )
                     # Add to unscored messages list
-                    self.unscored_messages.append(msg)
+                    self.ungrouped_messages.append(msg)
 
         except json.JSONDecodeError:
             print(f"Error: The file {self.file_path} is not a valid JSON file.")
             sys.exit(1)
         except FileNotFoundError:
             print(f"Error: The file {self.file_path} was not found.")
-            sys.exit(1)
+            sys.exit(1) 
 
-        return self.unscored_messages
+        return self.ungrouped_messages
     
-    def get_unscored_messages_json(self):
-        """
-        Return the unscored messages to a JSON file.
-        """
-        output_path = Path(self.file_path).with_suffix('.json')
+    """
+    Group messages by channel and parent thread timestamp.
+    """
+    def group_messages(self):
+
+        for message in self.ungrouped_messages:
+            # Create a channel key for the message
+            channel_key = message.channel_id
+            if channel_key not in self.grouped_messages:
+                self.grouped_messages[channel_key] = {}
+            channel_messages = self.grouped_messages[channel_key]
+
+            # Create a parent thread key for the message
+            parent_key = message.parent_thread_ts
+            if parent_key not in channel_messages:
+                channel_messages[parent_key] = []
+            channel_messages[parent_key].append(message)
+
+        return self.grouped_messages
+    
+
+    """
+    Return the unscored messages to a JSON file.
+    """
+    def get_messages_json(self):
+        # Get file path
+        output_path = Path(self.output_path)
+        self.group_messages()
+
+        # Get grouped message data
+        data = {}
+        for channel_id, channel_messages in self.grouped_messages.items():
+            data[channel_id] = {}
+            for parent_ts, messages in channel_messages.items():
+                data[channel_id][parent_ts] = [msg.to_dict() for msg in messages]
+
+        # Save to JSON file
+        with output_path.open('w', encoding='utf-8') as file:
+            json.dump(data, file, indent=4)
+
+        print(f"Unscored messages saved to {output_path}")
+        return output_path
 
 
 def main():
     # Check if the file path is provided
-    if len(sys.argv) != 2:
-        print("Usage: python preprocessing.py <file_path>")
+    if len(sys.argv) != 3:
+        print("Usage: python preprocessing.py <input_path> <output_path>")
         sys.exit(1)
 
-    # Get the file path from command line arguments
-    file_path = sys.argv[1]
-    mp = MessageParser(file_path)
+    # Get the input file path from command line arguments
+    input_path = sys.argv[1]
+    output_path = sys.argv[2]
+    mp = MessageParser(input_path, output_path)
     raw = mp.load_messages()
     
-    # Print the loaded messages
-    for message in raw:
-        print(message.to_dict())
+    # Get the output path from command line arguments
+    mp.get_messages_json()
 
 
 if __name__ == "__main__":
