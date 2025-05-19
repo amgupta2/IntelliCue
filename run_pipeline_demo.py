@@ -64,9 +64,6 @@ def run_pipeline():
 
     insights_data = generate_insights_from_json(data)
 
-    print(insights_data)
-
-
     # Generate the PDF
     pdf_output_path = "output/feedback_report.pdf"
     print("Generating PDF report...")
@@ -81,7 +78,7 @@ def run_pipeline():
             title="Feedback Report",
             filename="feedback_report.pdf"
         )
-        print(f"PDF sent to Slack channel #all-intellicue, response: {response}")
+        print(f"PDF sent to channel #all-intellicue, response: {response}")
 
     # # Step 4: Send insights to Slack in Formatted Message
     # print("Sending insights to Slack...")

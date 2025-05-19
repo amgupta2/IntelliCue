@@ -32,7 +32,8 @@ def process_with_gemini(messages_text):
 def generate_insights_from_json(json_data: list[dict]) -> dict:
     """
     Accepts a list of message objects with message_text and sentiment_value,
-    prepares them for analysis, and returns Gemini's insights in a structured format.
+    prepares them for analysis, and returns Gemini's insights in a
+    structured format.
     """
     combined_entries = ""
     for entry in json_data:
@@ -40,10 +41,8 @@ def generate_insights_from_json(json_data: list[dict]) -> dict:
         sentiment = entry.get("sentiment_score", "").strip()
         combined_entries += f"- Message: {text}\n  Sentiment: {sentiment}\n\n"
 
-
     insights = process_with_gemini(combined_entries)
 
     return {
         "insights": insights.strip()
     }
-
