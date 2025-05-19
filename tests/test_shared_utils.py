@@ -8,6 +8,7 @@ from src.shared.utils import (
     generate_unique_id
 )
 
+
 class TestSharedUtils(unittest.TestCase):
     def test_format_timestamp(self):
         """Test timestamp formatting functionality"""
@@ -16,7 +17,7 @@ class TestSharedUtils(unittest.TestCase):
         formatted = format_timestamp(now)
         self.assertIsInstance(formatted, str)
         self.assertTrue(len(formatted) > 0)
-        
+
         # Test specific timestamp
         specific_time = datetime(2024, 3, 20, 14, 30, 0)
         formatted = format_timestamp(specific_time)
@@ -33,7 +34,7 @@ class TestSharedUtils(unittest.TestCase):
         ]
         for email in valid_emails:
             self.assertTrue(validate_email(email))
-        
+
         # Invalid email addresses
         invalid_emails = [
             "invalid.email",
@@ -52,7 +53,7 @@ class TestSharedUtils(unittest.TestCase):
         sanitized = sanitize_text(input_text)
         self.assertNotIn("<script>", sanitized)
         self.assertIn("Hello World!", sanitized)
-        
+
         # Test with special characters
         input_text = "Test & Special < Characters >"
         sanitized = sanitize_text(input_text)
@@ -66,7 +67,7 @@ class TestSharedUtils(unittest.TestCase):
         future = now + timedelta(hours=2)
         diff = calculate_time_difference(now, future)
         self.assertEqual(diff.total_seconds(), 7200)  # 2 hours in seconds
-        
+
         # Test past time
         past = now - timedelta(days=1)
         diff = calculate_time_difference(now, past)
@@ -80,7 +81,7 @@ class TestSharedUtils(unittest.TestCase):
             new_id = generate_unique_id()
             self.assertNotIn(new_id, ids)
             ids.add(new_id)
-        
+
         # Check ID format
         sample_id = generate_unique_id()
         self.assertIsInstance(sample_id, str)
@@ -92,11 +93,13 @@ class TestSharedUtils(unittest.TestCase):
         self.assertRaises(ValueError, format_timestamp, None)
         self.assertRaises(ValueError, validate_email, None)
         self.assertRaises(ValueError, sanitize_text, None)
-        self.assertRaises(ValueError, calculate_time_difference, None, datetime.now())
-        
+        self.assertRaises(ValueError, calculate_time_difference,
+                          None, datetime.now())
+
         # Test empty string inputs
         self.assertFalse(validate_email(""))
         self.assertEqual(sanitize_text(""), "")
 
+
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

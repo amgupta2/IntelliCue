@@ -1,7 +1,5 @@
 from src.slack_app import client
 from slack_sdk.errors import SlackApiError
-import pytest
-from datetime import datetime
 
 
 def test_format_message_basic():
