@@ -9,4 +9,4 @@ venv/
 .env
 
 # macOS system files (if on Mac)
-.DS_Storevenv/
+.DS_Store
