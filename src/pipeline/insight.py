@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 
+
 def process_with_gemini(messages_text):
     """Sends the combined text to Gemini and returns structured insights."""
     model = genai.GenerativeModel('gemini-1.5-flash-8b')
@@ -18,17 +19,22 @@ def process_with_gemini(messages_text):
     {messages_text}
 
     Perform the following:
-    1. Summarize the **overall tone** (positive, neutral, negative) with statistics:
+    1. Summarize the **overall tone** (positive, neutral, negative) 
+     with statistics:
     - Include count and percentage breakdowns.
     - Output a textual summary of the emotional direction.
     2. Summarize **category insights**:
     - Show which categories were most common.
     - Include message counts and percentages.
     - Highlight key categories of concern (e.g. complaints, suggestions).
-    3. List **key issues or concerns** mentioned (bulleted list with concise details).
-    - For each issue, include 1–3 example messages that support or illustrate the issue (quote them directly).
-    4. Recommend **3–5 actionable next steps** to improve team morale and customer satisfaction (with concise details).
-    5. Include **basic visuals**, such as an ASCII bar chart or tables for sentiment breakdown.
+    3. List **key issues or concerns** mentioned 
+     (bulleted list with concise details).
+    - For each issue, include 1–3 example messages that support or 
+     illustrate the issue (quote them directly).
+    4. Recommend **3–5 actionable next steps** to improve team morale 
+     and customer satisfaction (with concise details).
+    5. Include **basic visuals**, such as an ASCII bar chart or tables 
+     for sentiment breakdown.
 
     Return the results as a valid JSON object using the following structure:
     {{
@@ -75,6 +81,7 @@ def process_with_gemini(messages_text):
         print("⚠️ Warning: Gemini response is not valid JSON.")
         return {"raw_response": raw_text}
 
+
 def generate_insights_from_json(json_data: list[dict]) -> dict:
     """Formats input messages and gets Gemini insights."""
     combined_entries = ""
@@ -82,7 +89,9 @@ def generate_insights_from_json(json_data: list[dict]) -> dict:
         text = entry.get("message_text", "").strip()
         sentiment = entry.get("sentiment", "").strip()
         category = entry.get("category", "").strip()
-        combined_entries += f"- Message: {text}\n  Sentiment: {sentiment}\n Category: {category}\n\n"
+        combined_entries += f"- Message: {text}\n"
+        combined_entries += f"  Sentiment: {sentiment}\n  Category: {category}\n\n"
 
     insights = process_with_gemini(combined_entries)
     return insights
+    

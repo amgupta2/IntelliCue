@@ -9,3 +9,4 @@ if __name__ == "__main__":
     insights = generate_insights_from_json(data)
 
     print(json.dumps(insights, indent=2))  # or pass to another function
+    
