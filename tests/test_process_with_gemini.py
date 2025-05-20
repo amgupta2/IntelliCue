@@ -10,4 +10,3 @@ def test_process_with_gemini(mock_model_class):
 
     result = process_with_gemini("Test message")
     assert "Mocked insight" in result
-    
