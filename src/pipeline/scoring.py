@@ -89,7 +89,7 @@ class ScoringPipeline:
                     #   - check categories
                     #   - keep if any category is >= 0.5
                     
-                    text = message['message_text']
+                    text = message.message_text
                     if len(context) > 0:
                         text = "\n".join(context) + "\n" + text
 
@@ -106,11 +106,11 @@ class ScoringPipeline:
                     # Create ScoredMessage object
                     scored_message = ScoredMessage()
                     scored_message.message_text = text
-                    scored_message.timestamp = message['timestamp']
-                    scored_message.parent_thread_ts = message['parent_thread_ts']
+                    scored_message.timestamp = message.timestamp
+                    scored_message.parent_thread_ts = message.parent_thread_ts
                     scored_message.sentiment = sentiment
                     scored_message.category = category[0]
-                    scored_message.reactions = message['reactions']
+                    scored_message.reactions = message.reactions
 
                     if sentiment != "negative":
                         if category[0] == "other" or scores[0] < 0.5:
@@ -118,7 +118,7 @@ class ScoringPipeline:
                     
                     self.scored_messages.append(scored_message.to_dict())
 
-                    context.append(message['message_text'])
+                    context.append(message.message_text)
 
         print("Scoring completed.")
         return self.scored_messages
@@ -136,9 +136,9 @@ def main():
     input_path = sys.argv[1]
     output_path = sys.argv[2]
 
-    mp = MessageParser(input_path, output_path)
+    mp = MessageParser(input_path)
     mp.load_messages()
-    unscored = mp.get_messages_json()
+    unscored = mp.group_messages()
 
     sp = ScoringPipeline(unscored)
     scored = sp.score_messages()

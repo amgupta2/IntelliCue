@@ -50,9 +50,8 @@ It loads the messages from the file and creates UnscoredMessage objects.
 Also groups messages by channel and parent thread timestamp.
 """
 class MessageParser:
-    def __init__(self, input_path, output_path):
+    def __init__(self, input_path):
         self.input_path = input_path
-        self.output_path = output_path
         self.ungrouped_messages = []
         self.grouped_messages = {}
 
@@ -131,9 +130,9 @@ class MessageParser:
     """
     Return the unscored messages to a JSON file.
     """
-    def get_messages_json(self):
+    def get_messages_json(self, output_path=None):
         # Get file path
-        output_path = Path(self.output_path)
+        output = Path(output_path)
         self.group_messages()
 
         # Get grouped message data
@@ -144,7 +143,7 @@ class MessageParser:
                 data[channel_id][parent_ts] = [msg.to_dict() for msg in messages]
 
         # Save to JSON file
-        with output_path.open('w', encoding='utf-8') as file:
+        with output.open('w', encoding='utf-8') as file:
             json.dump(data, file, indent=4)
 
         print(f"Unscored messages saved to {output_path}")
@@ -153,14 +152,13 @@ class MessageParser:
 
 def main():
     # Check if the file path is provided
-    if len(sys.argv) != 3:
-        print("Usage: python preprocessing.py <input_path> <output_path>")
+    if len(sys.argv) != 2:
+        print("Usage: python preprocessing.py <input_path>")
         sys.exit(1)
 
     # Get the input file path from command line arguments
     input_path = sys.argv[1]
-    output_path = sys.argv[2]
-    mp = MessageParser(input_path, output_path)
+    mp = MessageParser(input_path)
     raw = mp.load_messages()
     
     # Get the output path from command line arguments
