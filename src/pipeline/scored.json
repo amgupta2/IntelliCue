@@ -1,0 +1,50 @@
+[
+    {
+        "message_text": "test",
+        "timestamp": 1745526408.074749,
+        "parent_thread_ts": "1745526408.074749",
+        "sentiment": "neutral",
+        "category": "inquiry",
+        "reactions": []
+    },
+    {
+        "message_text": "previous message test",
+        "timestamp": 1745514773.577749,
+        "parent_thread_ts": "1745514773.577749",
+        "sentiment": "neutral",
+        "category": "inquiry",
+        "reactions": []
+    },
+    {
+        "message_text": "should we go out after work",
+        "timestamp": 1747011824.342069,
+        "parent_thread_ts": "1747011824.342069",
+        "sentiment": "neutral",
+        "category": "inquiry",
+        "reactions": []
+    },
+    {
+        "message_text": "i was told by a customer our feedback system is terrible",
+        "timestamp": 1747011814.703289,
+        "parent_thread_ts": "1747011814.703289",
+        "sentiment": "negative",
+        "category": "complaint",
+        "reactions": []
+    },
+    {
+        "message_text": "my manager is amazing shes the best",
+        "timestamp": 1747011800.649649,
+        "parent_thread_ts": "1747011800.649649",
+        "sentiment": "positive",
+        "category": "praise",
+        "reactions": []
+    },
+    {
+        "message_text": "im so overworked i have way too much on my plate compared to my team",
+        "timestamp": 1747011792.714179,
+        "parent_thread_ts": "1747011792.714179",
+        "sentiment": "negative",
+        "category": "complaint",
+        "reactions": []
+    }
+]
