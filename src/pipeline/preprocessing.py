@@ -148,7 +148,7 @@ class MessageParser:
             json.dump(data, file, indent=4)
 
         print(f"Unscored messages saved to {output_path}")
-        return output_path
+        return data
 
 
 def main():
