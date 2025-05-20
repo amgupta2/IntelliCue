@@ -43,8 +43,8 @@ def test_json_single_message(monkeypatch, capsys):
     assert len(parser.grouped_messages) == 1
     keys = list(parser.grouped_messages.keys())
     assert keys[0] == "C08PH0ZMY7L"
-    assert parser.grouped_messages["C08PH0ZMY7L"]
-    ["1746565594.746919"][0].message_text == "hello"
+    channel_thr = parser.grouped_messages["C08PH0ZMY7L"]["1746565594.746919"]
+    assert channel_thr[0].message_text == "hello"
 
     # Clean up the temporary file
     os.remove(temp_file_path)
