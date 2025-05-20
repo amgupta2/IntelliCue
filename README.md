@@ -20,6 +20,8 @@ Extract keywords from slack messages and emails and automate weekly emails with 
 | Environment Config| `config/`       | Gitignored secrets, `.env` files, and Slack tokens for local/dev use.  |
 | Tests             | `tests/`        | Unit tests and integration tests. Uses `pytest`, `moto` for AWS mocking. |
 | Dev Tools         | `tools/`        | Scripts for deploying Lambdas, mocking Slack events, and running pipelines locally. |
+| Documentation     | `documentation/`| User and Developer Guides for using and contributing to IntelliCue.    |
+
 
 
 ## How to Run / Local Setup (DEMO CODE)
@@ -35,8 +37,15 @@ Contact the IntelliCue team via Slack to be added to:
 
 ### Step 1: Get the Demo Code
 ```bash
+# Clone code locally
 git checkout demo-branch
 git pull
+
+# Setup virtual environment
+python3 -m venv venv
+source venv/bin/activate   # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -106,7 +115,12 @@ python run_pipeline_demo.py
 - If you encounter issues with API tokens or permissions, double-check that your Slack app has been granted the correct scopes.
 - The Slack app runs in socket mode; ensure your network does not block WebSocket connections.
 
+## Running Unit Tests
+Unit Tests live in the `tests/` folder of the repository. They use Pytest as the testing automation framework and then use `moto`, `requests_mock`, and `unittest.mock` libaries for mocking AWS resources and Slack Web API requests. When contributing or using the test suite, you should not need to be setup with real API tokens as we are mocking all resources instead of using physical API calls. We use code coverage as a guideline for where we need to add more tests so we will be using a standardized baseline of 80% per file as the minimum code coverage before deploying into production.
 
+```bash
+pytest --cov=src tests/
+```
 
 ## Resources
 - Weekly Updates: https://docs.google.com/document/d/14xlioL8x9TDKSeNkuvv2ZztGRhxHaSIjMrBktPaLzaE/edit?usp=sharing
