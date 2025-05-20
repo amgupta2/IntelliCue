@@ -1,10 +1,10 @@
 import json
 import sys
-from datetime import datetime
+# from datetime import datetime
 from pathlib import Path
 
 """
-An object used to represent a message in the Slack export before it is passed 
+An object used to represent a message in the Slack export before it is passed
 through the Sentiment Analysis Model.
 
 Fields:
@@ -16,8 +16,11 @@ Fields:
 - is_thread_reply: whether the message is a reply in a thread.
 - parent_thread_ts: The timestamp of the parent thread if applicable.
 """
+
+
 class UnscoredMessage:
-    def __init__(self, message_text, reactions, channel_id, channel_name, timestamp, is_thread_reply, parent_thread_ts):
+    def __init__(self, message_text, reactions, channel_id, channel_name,
+                 timestamp, is_thread_reply, parent_thread_ts):
         self.message_text = message_text
         self.reactions = reactions
         self.channel_id = channel_id
@@ -25,7 +28,6 @@ class UnscoredMessage:
         self.timestamp = float(timestamp)
         self.is_thread_reply = is_thread_reply
         self.parent_thread_ts = parent_thread_ts
-
 
     def to_dict(self):
         return {
@@ -49,6 +51,8 @@ It loads the messages from the file and creates UnscoredMessage objects.
 
 Also groups messages by channel and parent thread timestamp.
 """
+
+
 class MessageParser:
     def __init__(self, input_path):
         self.input_path = input_path
@@ -69,7 +73,10 @@ class MessageParser:
                 # Run through all messages
                 for message in data:
                     # Skip non-messages and automated messages
-                    if message['message_type'] != 'message' or message['subtype'] is not None or message['sent_by_bot_id'] is not None:
+                    not_message = message['message_type'] != 'message'
+                    automated = message['subtype'] is not None
+                    bot = message['sent_by_bot_id'] is not None
+                    if not_message or automated or bot:
                         continue
 
                     # Create new UnscoredMessage object
@@ -98,14 +105,13 @@ class MessageParser:
                     self.ungrouped_messages.append(msg)
 
         except json.JSONDecodeError:
-            print(f"Error: The file {self.file_path} is not a valid JSON file.")
+            print(f"Error: The file {self.file_path} is not a valid JSON file")
             sys.exit(1)
         except FileNotFoundError:
-            print(f"Error: The file {self.file_path} was not found.")
-            sys.exit(1) 
+            print(f"Error: The file {self.file_path} was not found")
+            sys.exit(1)
 
         return self.ungrouped_messages
-    
     """
     Group messages by channel and parent thread timestamp.
     """
@@ -125,8 +131,6 @@ class MessageParser:
             channel_messages[parent_key].append(message)
 
         return self.grouped_messages
-    
-
     """
     Return the unscored messages to a JSON file.
     """
@@ -140,7 +144,8 @@ class MessageParser:
         for channel_id, channel_messages in self.grouped_messages.items():
             data[channel_id] = {}
             for parent_ts, messages in channel_messages.items():
-                data[channel_id][parent_ts] = [msg.to_dict() for msg in messages]
+                msg_arr = [msg.to_dict() for msg in messages]
+                data[channel_id][parent_ts] = msg_arr
 
         # Save to JSON file
         with output.open('w', encoding='utf-8') as file:
@@ -159,8 +164,7 @@ def main():
     # Get the input file path from command line arguments
     input_path = sys.argv[1]
     mp = MessageParser(input_path)
-    raw = mp.load_messages()
-    
+    mp.load_messages()
     # Get the output path from command line arguments
     mp.get_messages_json()
 

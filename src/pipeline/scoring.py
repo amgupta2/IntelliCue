@@ -1,45 +1,54 @@
 from transformers import pipeline
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import (
+    AutoTokenizer,
+    AutoModelForSequenceClassification as AutoModel
+)
 import numpy as np
 import torch
 import json
 import sys
-from preprocessing import UnscoredMessage, MessageParser
+from preprocessing import MessageParser
 from pathlib import Path
 
 """
-Used to classify messages into different categories such as question, feedback, complaint, praise, or other.
-This is done using a zero-shot classification model.
+Used to classify messages into different categories such as question,
+feedback, complaint, praise, or other.This is done using a zero-shot
+classification model.
 """
+
+
 class ZeroShotClassifier:
     def __init__(self, model_name="facebook/bart-large-mnli"):
-        self.classifier = pipeline("zero-shot-classification", model=model_name)
+        self.classifier = pipeline("zero-shot-classification",
+                                   model=model_name)
 
-
-    def classify(self, text, labels=["inquiry", "goal", "complaint", "praise", "other"]):
+    def classify(self, text,
+                 labels=["inquiry", "goal", "complaint", "praise", "other"]):
         results = self.classifier(text, labels)
         return results
-    
-    
+
+
 """
 Used to analyze the sentiment of messages into positive, negative, or neutral.
 This is done using a pre-trained sentiment analysis model.
 """
+
+
 class SentimentAnalyzer:
     def __init__(self, model_name="cardiffnlp/twitter-roberta-base-sentiment"):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
-
+        self.model = AutoModel.from_pretrained(model_name)
 
     def analyze_sentiment(self, text):
         encoded_input = self.tokenizer(text, return_tensors='pt')
         result = self.model(**encoded_input)
         scores = result[0][0].detach().numpy()
 
-        normalized_scores = torch.nn.functional.softmax(torch.tensor(scores), dim=0)
+        normalized_scores = torch.nn.functional.softmax(
+            torch.tensor(scores), dim=0)
         return normalized_scores
-    
-    
+
+
 class ScoredMessage:
     def __init__(self):
         self.message_text = None
@@ -65,13 +74,12 @@ class ScoringPipeline:
         self.unscored_messages = unscored_messages
         self.scored_messages = []
 
-
     def score_messages(self):
         sa = SentimentAnalyzer()
         zcs = ZeroShotClassifier()
 
         print("Scoring messages...")
-        
+
         for channel, threads in self.unscored_messages.items():
             for thread_id, thread in threads.items():
                 if len(thread) == 0:
@@ -88,7 +96,7 @@ class ScoringPipeline:
                     # - if positive or neutral:
                     #   - check categories
                     #   - keep if any category is >= 0.5
-                    
+
                     text = message.message_text
                     if len(context) > 0:
                         text = "\n".join(context) + "\n" + text
@@ -101,7 +109,8 @@ class ScoringPipeline:
 
                     # Classify message
                     raw_category_results = zcs.classify(text)
-                    category, scores = raw_category_results['labels'], raw_category_results['scores']
+                    category = raw_category_results['labels']
+                    scores = raw_category_results['scores']
 
                     # Create ScoredMessage object
                     scored_message = ScoredMessage()
@@ -115,14 +124,13 @@ class ScoringPipeline:
                     if sentiment != "negative":
                         if category[0] == "other" or scores[0] < 0.5:
                             continue
-                    
+
                     self.scored_messages.append(scored_message.to_dict())
 
                     context.append(message.message_text)
 
         print("Scoring completed.")
         return self.scored_messages
-
 
     def save_scored_json(self):
         pass
