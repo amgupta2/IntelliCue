@@ -168,6 +168,6 @@ def main():
     # Get the output path from command line arguments
     mp.get_messages_json()
 
-    
+
 if __name__ == "__main__":
     main()
