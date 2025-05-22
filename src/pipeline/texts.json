@@ -1,0 +1,22 @@
+[
+    {
+      "timestamp": "2025-04-26T12:00:00",
+      "sender": "Customer",
+      "message": "I'm having trouble logging into my account."
+    },
+    {
+      "timestamp": "2025-04-26T12:05:00",
+      "sender": "Support",
+      "message": "Sorry to hear that! Can you please try resetting your password?"
+    },
+    {
+      "timestamp": "2025-04-26T12:10:00",
+      "sender": "Customer",
+      "message": "Thanks, that worked! Great support."
+    },
+    {
+      "timestamp": "2025-04-26T12:20:00",
+      "sender": "Customer",
+      "message": "Also, I'm very satisfied with the new app update. Much faster now!"
+    }
+  ]
