@@ -97,7 +97,7 @@ All other known issues are tracked [here](https://github.com/amgupta2/IntelliCue
 
 ## IMPORTANT NOTE
 
-This user guide is only applicable after we've hosted our backend on AWS and published to the Slack Marketplace. Until then, please refer to the developer guide to use a beta version of this project locally.
+This user guide is only applicable after we've hosted our backend on AWS and published to the Slack Marketplace. Until then, please refer to the README to use a beta version of this project locally specifically on the `demo-branch`
 
 ---
 

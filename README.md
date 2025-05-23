@@ -26,6 +26,8 @@ Extract keywords from slack messages and emails and automate weekly emails with 
 
 ## How to Run / Local Setup (DEMO CODE)
 
+> ⚠️ **Note:** Please make sure you are working on the `demo-branch` when running, testing, or building IntelliCue. This branch reflects the current stable demo configuration.
+
 Currently, IntelliCue can only be ran locally in a development workspace for accessing the Slack API. It is not configured with AWS meaning we are using local file creation to create JSON objects instead of utilizing the Databases and Step Function. IntelliCue is setup in socket mode meaning that it cannot be published on the Slack App Marketplcae and your network must allow network requests since your laptop will be acting as the host. For the preprocessing use cases, IntelliCue is configured with a very basic preprocessing script to anonymize messages, filter our basic noise such as user joining channels, and then uses sentiment analsysis that still needs to be tuned.
 
 ### Step 0: Access Setup
