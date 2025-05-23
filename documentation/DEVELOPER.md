@@ -88,8 +88,7 @@ pip install -r requirements.txt
 
 ## Running the App Locally
 
-> ⚠️ **Note:** Please make sure you are running on the `demo-branch` when running and testing IntelliCue. This branch reflects the current stable demo configuration.
-
+> ⚠️ **Note:** Please make sure you are working on the `demo-branch` when running or testing IntelliCue. This branch reflects the current stable demo configuration.
 
 ```bash
 python run_pipeline_demo.py
