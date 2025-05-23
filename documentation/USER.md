@@ -99,8 +99,7 @@ All other known issues are tracked [here](https://github.com/amgupta2/IntelliCue
 
 Please make sure you are on the `demo-branch` when running or testing IntelliCue. This branch reflects the current stable demo configuration.
 
-This user guide is only applicable after we've hosted our backend on AWS and published to the Slack Marketplace. Until then, please refer to the README to use a beta version of this project locally.
-
+This user guide is only applicable after we've hosted our backend on AWS and published to the Slack Marketplace. Until then, please refer to the README to use a beta version of this project locally specifically on the `demo-branch`
 
 ---
 
