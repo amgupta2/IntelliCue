@@ -10,3 +10,7 @@ venv/
 
 # macOS system files (if on Mac)
 .DS_Store
+
+output/
+
+.vscode/
