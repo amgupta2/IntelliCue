@@ -109,8 +109,6 @@ class PDFGenerator:
             raise ValueError("Empty JSON data provided")
         if not isinstance(json_data, dict):
             raise ValueError("Input must be a dictionary")
-        if 'insights' not in json_data or not str(json_data['insights']).strip():
-            raise ValueError("Missing or empty required 'insights' section")
         
         doc = SimpleDocTemplate(
             self.output_path,
@@ -133,85 +131,88 @@ class PDFGenerator:
         elements.append(Paragraph(f"Generated on: {current_time}", self.styles['CustomBody']))
         elements.append(Spacer(1, 24))
         
-        # Process insights
-        if 'insights' in json_data:
-            elements.extend(self._process_insights(json_data['insights']))
+        # Process overall tone summary
+        if 'overall_tone_summary' in json_data:
+            elements.extend(self._process_overall_tone(json_data['overall_tone_summary']))
         
-        # Process and add sentiment analysis
-        if 'sentiment_analysis' in json_data:
-            elements.extend(self._add_sentiment_section(json_data['sentiment_analysis']))
+        # Process category insights
+        if 'category_insights' in json_data:
+            elements.extend(self._process_category_insights(json_data['category_insights']))
         
-        # Process and add actionable items
-        if 'action_items' in json_data:
-            elements.extend(self._add_action_items_section(json_data['action_items']))
+        # Process key issues
+        if 'key_issues' in json_data:
+            elements.extend(self._process_key_issues(json_data['key_issues']))
+        
+        # Process actionable next steps
+        if 'actionable_next_steps' in json_data:
+            elements.extend(self._process_action_items(json_data['actionable_next_steps']))
+        
+        # Process visuals if present
+        if 'visuals' in json_data:
+            elements.extend(self._process_visuals(json_data['visuals']))
         
         # Build the PDF with header and footer
         doc.build(elements, onFirstPage=self._header_footer, onLaterPages=self._header_footer)
-    
-    def _process_insights(self, insights_text):
-        """Process the insights text and convert it to PDF elements"""
+
+    def _process_overall_tone(self, tone_data):
+        """Process the overall tone summary section"""
         elements = []
         
-        # Split the text into sections based on markdown headers
-        sections = re.split(r'\*\*(\d+\.\s*[^*]+):\*\*', insights_text)
-        
-        # Process each section
-        for i in range(1, len(sections), 2):
-            if i + 1 < len(sections):
-                header = sections[i].strip()
-                content = sections[i + 1].strip()
-                
-                # Add section header
-                elements.append(Paragraph(md_to_rml(header), self.styles['CustomHeading']))
-                elements.append(Spacer(1, 12))
-                
-                # Process content
-                elements.extend(self._process_content(content))
-                elements.append(Spacer(1, 24))
-        
-        return elements
-    
-    def _process_content(self, content):
-        """Process content text and convert it to PDF elements"""
-        elements = []
-        
-        # Split content into paragraphs
-        paragraphs = content.split('\n\n')
-        
-        for para in paragraphs:
-            if para.strip():
-                # Check if it's a bullet point
-                if para.strip().startswith('*'):
-                    # Process bullet points
-                    raw_lines = [l.lstrip('*').strip() for l in para.split('\n') if l.strip()]
-                    elements.append(self._as_bullet_list(raw_lines))
-                else:
-                    # Regular paragraph
-                    elements.append(Paragraph(md_to_rml(para.strip()), self.styles['CustomBody']))
-                    elements.append(Spacer(1, 6))
-        
-        return elements
-    
-    def _add_sentiment_section(self, sentiment_data):
-        """Add the sentiment analysis section to the PDF"""
-        elements = []
-        
-        elements.append(Paragraph("Sentiment Analysis", self.styles['CustomHeading']))
+        elements.append(Paragraph("Overall Tone Summary", self.styles['CustomHeading']))
         elements.append(Spacer(1, 12))
         
         # Create a table for sentiment data
-        data = [["Category", "Positive", "Neutral", "Negative"]]
-        for category, sentiments in sentiment_data.items():
-            data.append([
-                category,
-                f"{sentiments.get('positive', 0)}%",
-                f"{sentiments.get('neutral', 0)}%",
-                f"{sentiments.get('negative', 0)}%"
-            ])
-            
-        table = Table(data, colWidths=[2*inch, 1.5*inch, 1.5*inch, 1.5*inch])
+        data = [
+            ["Metric", "Value"],
+            ["General Emotional Direction", tone_data.get('general_emotional_direction', 'N/A')],
+            ["Positive Percentage", tone_data.get('positive_percentage', '0%')],
+            ["Negative Percentage", tone_data.get('negative_percentage', '0%')],
+            ["Neutral Percentage", tone_data.get('neutral_percentage', '0%')],
+            ["Positive Count", str(tone_data.get('positive_count', 0))],
+            ["Negative Count", str(tone_data.get('negative_count', 0))],
+            ["Neutral Count", str(tone_data.get('neutral_count', 0))]
+        ]
+        
+        table = Table(data, colWidths=[3*inch, 2*inch])
         table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2ECC71')),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1A5276')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#BDC3C7')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F8F9F9')]),
+        ]))
+        
+        elements.append(table)
+        elements.append(Spacer(1, 24))
+        
+        return elements
+
+    def _process_category_insights(self, category_data):
+        """Process the category insights section"""
+        elements = []
+        
+        elements.append(Paragraph("Category Insights", self.styles['CustomHeading']))
+        elements.append(Spacer(1, 12))
+        
+        # Create a table for category data
+        data = [["Category", "Count", "Percentage"]]
+        for category, stats in category_data.items():
+            data.append([
+                category.capitalize(),
+                str(stats.get('count', 0)),
+                stats.get('percentage', '0%')
+            ])
+        
+        table = Table(data, colWidths=[2*inch, 1.5*inch, 1.5*inch])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1A5276')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -229,18 +230,53 @@ class PDFGenerator:
         elements.append(Spacer(1, 24))
         
         return elements
-    
-    def _add_action_items_section(self, action_items):
-        """Add the actionable items section to the PDF"""
+
+    def _process_key_issues(self, issues_data):
+        """Process the key issues section"""
         elements = []
         
-        elements.append(Paragraph("Recommended Actions", self.styles['CustomHeading']))
+        elements.append(Paragraph("Key Issues", self.styles['CustomHeading']))
         elements.append(Spacer(1, 12))
         
-        for category, items in action_items.items():
-            elements.append(Paragraph(md_to_rml(category), self.styles['CustomSubHeading']))
-            elements.append(self._as_bullet_list(items))
+        for issue in issues_data:
+            # Add issue
+            elements.append(Paragraph(md_to_rml(issue['issue']), self.styles['CustomSubHeading']))
+            
+            # Add supporting messages as bullet points
+            if 'supporting_messages' in issue:
+                elements.append(self._as_bullet_list(issue['supporting_messages']))
+            
             elements.append(Spacer(1, 12))
+        
+        return elements
+
+    def _process_action_items(self, action_items):
+        """Process the actionable next steps section"""
+        elements = []
+        
+        elements.append(Paragraph("Actionable Next Steps", self.styles['CustomHeading']))
+        elements.append(Spacer(1, 12))
+        
+        elements.append(self._as_bullet_list(action_items))
+        elements.append(Spacer(1, 24))
+        
+        return elements
+
+    def _process_visuals(self, visuals_data):
+        """Process the visuals section"""
+        elements = []
+        
+        elements.append(Paragraph("Visual Summary", self.styles['CustomHeading']))
+        elements.append(Spacer(1, 12))
+        
+        if 'sentiment_bar_chart' in visuals_data:
+            # Add the bar chart as pre-formatted text
+            elements.append(Paragraph(
+                visuals_data['sentiment_bar_chart'].replace('\n', '<br/>'),
+                self.styles['CustomBody']
+            ))
+        
+        elements.append(Spacer(1, 24))
         
         return elements
 

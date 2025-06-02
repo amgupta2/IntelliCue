@@ -8,38 +8,52 @@ from src.pipeline.pdf_generator import PDFGenerator, generate_pdf_from_json, md_
 def sample_json_data():
     """Fixture providing sample JSON data for testing"""
     return {
-        "insights": """
-**1. Overall Tone:**
-* The overall tone of the feedback is neutral
-* No significant positive or negative sentiment detected
-* Communication style is professional and balanced
-
-**2. Key Issues:**
-* No discernible issues were identified in the feedback
-* All points raised are neutral in nature
-* No urgent concerns requiring immediate attention
-""",
-        "sentiment_analysis": {
-            "Communication": {
-                "positive": 60,
-                "neutral": 30,
-                "negative": 10
+        "overall_tone_summary": {
+            "general_emotional_direction": "Mostly negative",
+            "positive_percentage": "17%",
+            "negative_percentage": "33%",
+            "neutral_percentage": "50%",
+            "positive_count": 1,
+            "negative_count": 2,
+            "neutral_count": 3
+        },
+        "category_insights": {
+            "inquiry": {
+                "count": 3,
+                "percentage": "50%"
             },
-            "Work Environment": {
-                "positive": 70,
-                "neutral": 20,
-                "negative": 10
+            "complaint": {
+                "count": 2,
+                "percentage": "33%"
+            },
+            "praise": {
+                "count": 1,
+                "percentage": "17%"
             }
         },
-        "action_items": {
-            "Immediate Actions": [
-                "Schedule follow-up meeting",
-                "Review current processes"
-            ],
-            "Long-term Considerations": [
-                "Monitor team dynamics",
-                "Plan quarterly review"
-            ]
+        "key_issues": [
+            {
+                "issue": "Customer dissatisfaction with feedback system",
+                "supporting_messages": [
+                    "i was told by a customer our feedback system is terrible"
+                ]
+            },
+            {
+                "issue": "Overwork and workload imbalance",
+                "supporting_messages": [
+                    "im so overworked i have way too much on my plate compared to my team"
+                ]
+            }
+        ],
+        "actionable_next_steps": [
+            "Investigate and address customer feedback regarding the feedback system.",
+            "Assess workload distribution across the team and adjust accordingly.",
+            "Implement a system for tracking workload and allocating tasks.",
+            "Conduct regular team check-ins to address concerns.",
+            "Establish a process for collecting and addressing customer feedback."
+        ],
+        "visuals": {
+            "sentiment_bar_chart": "Positive: | \nNegative: ||| \nNeutral: ||||| \n"
         }
     }
 
@@ -86,51 +100,62 @@ def test_generate_pdf_from_json(sample_json_data, temp_output_path):
     assert os.path.exists(temp_output_path)
     assert os.path.getsize(temp_output_path) > 0
 
-def test_pdf_generator_process_insights(sample_json_data, temp_output_path):
-    """Test processing of insights section"""
+def test_pdf_generator_overall_tone(sample_json_data, temp_output_path):
+    """Test processing of overall tone section"""
     generator = PDFGenerator(temp_output_path)
-    elements = generator._process_insights(sample_json_data['insights'])
-    
-    # Verify elements were generated
-    assert len(elements) > 0
-    # Verify section headers are present
-    assert any("Overall Tone" in str(e) for e in elements)
-    assert any("Key Issues" in str(e) for e in elements)
-
-def test_pdf_generator_process_content(temp_output_path):
-    """Test processing of content with bullet points"""
-    generator = PDFGenerator(temp_output_path)
-    
-    # Test regular paragraph
-    content = "This is a regular paragraph."
-    elements = generator._process_content(content)
-    assert len(elements) == 2  # Paragraph + Spacer
-    
-    # Test bullet points
-    content = "* First point\n* Second point"
-    elements = generator._process_content(content)
-    assert len(elements) == 1  # Single ListFlowable
-
-def test_pdf_generator_sentiment_section(sample_json_data, temp_output_path):
-    """Test sentiment analysis section generation"""
-    generator = PDFGenerator(temp_output_path)
-    elements = generator._add_sentiment_section(sample_json_data['sentiment_analysis'])
+    elements = generator._process_overall_tone(sample_json_data['overall_tone_summary'])
     
     # Verify elements were generated
     assert len(elements) > 0
     # Verify table was created
     assert any(isinstance(e, Table) for e in elements)
+    # Verify content
+    assert any("Mostly negative" in str(e) for e in elements)
 
-def test_pdf_generator_action_items(sample_json_data, temp_output_path):
-    """Test action items section generation"""
+def test_pdf_generator_category_insights(sample_json_data, temp_output_path):
+    """Test processing of category insights section"""
     generator = PDFGenerator(temp_output_path)
-    elements = generator._add_action_items_section(sample_json_data['action_items'])
+    elements = generator._process_category_insights(sample_json_data['category_insights'])
     
     # Verify elements were generated
     assert len(elements) > 0
-    # Verify categories are present
-    assert any("Immediate Actions" in str(e) for e in elements)
-    assert any("Long-term Considerations" in str(e) for e in elements)
+    # Verify table was created
+    assert any(isinstance(e, Table) for e in elements)
+    # Verify content
+    assert any("Inquiry" in str(e) for e in elements)
+    assert any("Complaint" in str(e) for e in elements)
+
+def test_pdf_generator_key_issues(sample_json_data, temp_output_path):
+    """Test processing of key issues section"""
+    generator = PDFGenerator(temp_output_path)
+    elements = generator._process_key_issues(sample_json_data['key_issues'])
+    
+    # Verify elements were generated
+    assert len(elements) > 0
+    # Verify content
+    assert any("Customer dissatisfaction" in str(e) for e in elements)
+    assert any("Overwork" in str(e) for e in elements)
+
+def test_pdf_generator_action_items(sample_json_data, temp_output_path):
+    """Test processing of action items section"""
+    generator = PDFGenerator(temp_output_path)
+    elements = generator._process_action_items(sample_json_data['actionable_next_steps'])
+    
+    # Verify elements were generated
+    assert len(elements) > 0
+    # Verify content
+    assert any("Investigate and address" in str(e) for e in elements)
+
+def test_pdf_generator_visuals(sample_json_data, temp_output_path):
+    """Test processing of visuals section"""
+    generator = PDFGenerator(temp_output_path)
+    elements = generator._process_visuals(sample_json_data['visuals'])
+    
+    # Verify elements were generated
+    assert len(elements) > 0
+    # Verify content
+    assert any("Positive: |" in str(e) for e in elements)
+    assert any("Negative: |||" in str(e) for e in elements)
 
 def test_pdf_generator_full_report(sample_json_data, temp_output_path):
     """Test generation of complete report"""
@@ -149,6 +174,6 @@ def test_pdf_generator_error_handling(temp_output_path):
     with pytest.raises(ValueError):
         generator.generate_report({})
     
-    # Test with missing required sections
+    # Test with non-dictionary input
     with pytest.raises(ValueError):
-        generator.generate_report({"insights": ""}) 
+        generator.generate_report([]) 

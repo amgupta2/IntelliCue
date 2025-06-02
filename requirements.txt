@@ -2,7 +2,6 @@
 slack-bolt
 python-dotenv
 boto3
-reportlab==4.0.4
 
 # Testing and CI
 pytest
