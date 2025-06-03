@@ -160,3 +160,32 @@ CI is managed via **GitHub Actions**:
 - **Socket Mode**: The app listens via WebSocket — your network **must allow outbound connections**.
 - If nothing happens after a slash command, confirm your bot tokens are correct and the app is running.
 - If you're creating a new Lambda, place it in its own folder in `lambdas/` and follow AWS packaging guidelines.
+
+## AWS Depolyment
+IntelliCue is deployed on AWS using Lambda functions. The system is configured for always-on operation without requiring local runtime.
+
+##Depoylment Steps
+
+1. AWS Account Access
+- Ensure you have access to the AWS Management Console.
+- Get permissions to the IntelliCue AWS account (contact core team).
+
+
+2. AWS Lambda Functions
+- Code for Lambdas is located in the lambdas/ directory.
+- Each Lambda has a lambda_function.py entry point.
+- The Lambdas are packaged and deployed manually via the AWS Console or CLI.
+- All the API's are already placed within the AWS
+
+3. Review All the permissions and process to see if everything is working as intended
+
+## Running in Prod
+1. The system continuously monitors Slack channels based on the bot's presence.
+2. When the /generate_feedback slash command is triggered, the AWS Lambda that does:
+    - Pull recent messages
+    - Process messages via the LLM pipeline
+    - Generate a PDF
+    - Post the PDF back into Slack.
+
+# Future steps
+- we will be addding a CI/CD pipeline
