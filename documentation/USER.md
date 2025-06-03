@@ -17,6 +17,7 @@ Instead of relying on tedious forms or low-response surveys, IntelliCue scans Sl
 
 To install IntelliCue:
 
+For Local Set up:
 1. **Go to the [Slack App Marketplace](https://slack.com/apps)** and search for **IntelliCue**.
 2. Click **Add to Slack**.
 3. During installation, you’ll be prompted to approve a list of permissions. These are required so IntelliCue can:
@@ -27,6 +28,9 @@ To install IntelliCue:
    /invite @IntelliCue
    ```
 5. Grant message-reading permission as requested (you will be guided through a Slack-native authorization flow).
+
+For AWS Deployment(Production Set up):
+1. IntelliCue is already deployed on AWS. You do not need to install or host anything.
 
 **Prerequisites**:
 - A Slack workspace with permission to install third-party apps.
@@ -39,19 +43,22 @@ To install IntelliCue:
 
 Once installed:
 
+Local Set Up:
 1. Go to any channel IntelliCue has been invited to.
 2. Run the following slash command:
    ```bash
    /generate_feedback
    ```
-3. Within 1–2 minutes, IntelliCue will analyze the past 7 days of conversation in that channel and return a **PDF report** with:
+3. Within 1–2 minutes (local depoloyment) or 4-5 minutes (AWS), IntelliCue will analyze the past 7 days of conversation in that channel and return a **PDF report** with:
    - Sentiment breakdown
    - Key themes
    - Suggested improvements
    - Summary insights
 4. The report will appear directly in the Slack channel where the command was issued.
 
+
 **Note**: You can only run the `/generate_feedback` command in channels where IntelliCue is present and has permission to read messages.
+ 
 
 ---
 
@@ -104,3 +111,4 @@ This user guide is only applicable after we've hosted our backend on AWS and pub
 ---
 
 Thank you for using IntelliCue!
+
