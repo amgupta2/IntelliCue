@@ -1,7 +1,7 @@
 import pytest
 import json
 import os
-from reportlab.platypus import Table
+from reportlab.platypus import Table, Paragraph, ListFlowable, ListItem
 from src.pipeline.pdf_generator import (PDFGenerator,
                                         generate_pdf_from_json,
                                         md_to_rml)
@@ -157,15 +157,29 @@ def test_pdf_generator_key_issues(sample_json_data, temp_output_path):
 
 
 def test_pdf_generator_action_items(sample_json_data, temp_output_path):
-    """Test processing of action items section"""
     generator = PDFGenerator(temp_output_path)
     action_data = sample_json_data['actionable_next_steps']
     elements = generator._process_action_items(action_data)
 
-    # Verify elements were generated
     assert len(elements) > 0
-    # Verify content
-    assert any("Investigate and address" in str(e) for e in elements)
+
+    text_blocks = []
+    for e in elements:
+        if isinstance(e, Paragraph):
+            text_blocks.append(e.getPlainText())
+        elif isinstance(e, ListFlowable):
+            for sub in e._flowables:
+                if isinstance(sub, ListItem):
+                    for content in sub._flowables:
+                        if isinstance(content, Paragraph):
+                            text_blocks.append(content.getPlainText())
+                elif isinstance(sub, Paragraph):
+                    text_blocks.append(sub.getPlainText())
+        elif hasattr(e, 'getPlainText'):
+            text_blocks.append(e.getPlainText())
+
+    print("Extracted text blocks:", text_blocks)
+    assert any("Investigate and address" in t for t in text_blocks)
 
 
 def test_pdf_generator_visuals(sample_json_data, temp_output_path):
