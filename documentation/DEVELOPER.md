@@ -1,16 +1,17 @@
 # IntelliCue Developer Guide
 
-This document is for developers working on the IntelliCue system. It will outline instructions for cloning, configuring, running, testing, and overall contributing to the software.
+This document is for developers working on the IntelliCue system. It outlines instructions for cloning, configuring, running, testing, and contributing to the software.
 
 ---
 
-## Cloning the Code (local development)
+## Cloning the Code (Local Development)
+
 ```bash
 git clone https://github.com/amgupta2/IntelliCue.git
 cd IntelliCue
 ```
 
-Since we are using a single respository, we do not have any other submodules. As part of development, you will also need access to the Slack API Dashboard, Slack Development Workspace, and AWS Cloud Computing Platform. Contact IntelliCue core team to gain access
+We use a single repository without submodules. To contribute, you'll also need access to the Slack API Dashboard, Slack Development Workspace, and AWS Cloud Console. Contact the IntelliCue core team to be granted access.
 
 ---
 
@@ -22,60 +23,90 @@ Since we are using a single respository, we do not have any other submodules. As
 | LLM Pipeline            | `src/pipeline/`        | Preprocessing, sentiment scoring, summarization via LLMs                       |
 | Shared Utilities        | `src/shared/`          | Slack clients, AWS S3 I/O, shared helpers                                      |
 | AWS Lambdas             | `lambdas/`             | Standalone Lambda functions with `lambda_function.py` entrypoints              |
-| Config                  | `config/`              | Gitignored environment configuration files (e.g. `.env`)                       |
+| Config                  | `config/`              | Git-ignored environment config files (e.g., `.env`)                            |
 | Tests                   | `tests/`               | Unit and integration tests (`pytest`, `moto`, `requests_mock`)                 |
 | Dev Tools               | `tools/`               | CLI scripts for Slack event mocking, local testing, and Lambda deploys         |
-| Local Orchestrator      | `run_pipeline_demo.py` | Script to run the local pipeline: Slack → Preprocess → LLM Inference           |
-| Documentation / Guides  | `documentation/`       | Developer and User Guides on how to contribute to and use IntelliCue           |
+| Local Orchestrator      | `run_pipeline_demo.py` | Script to run the local pipeline end-to-end                                    |
+| Documentation / Guides  | `documentation/`       | Developer and User Guides                                                      |
 
 ---
-## AWS Depolyment
-IntelliCue is deployed on AWS using Lambda functions. The system is configured for always-on operation without requiring local runtime.
 
-## Depoylment Steps
+## AWS Deployment
 
-1. AWS Account Access
-- Ensure you have access to the AWS Management Console.
-- Get permissions to the IntelliCue AWS account (contact core team).
+IntelliCue is deployed on AWS using Lambda and ECS. The system runs continuously and does not require local runtime in production.
 
+### Architecture Overview
 
-2. AWS Lambda Functions
-- Code for Lambdas is located in the lambdas/ directory.
-- Each Lambda has a lambda_function.py entry point.
-- The Lambdas are packaged and deployed manually via the AWS Console or CLI.
-- All the API's are already placed within the AWS
+#### 1. Triggering the Workflow
+- User types `/generate_feedback` in Slack.
+- Hits **API Gateway**, which invokes the **Orchestrator Lambda**.
 
-3. Any changes made to any part of the sytem, developers will need to repackage and redeploy the specific container inside of eleastic container service (ECS)
+#### 2. Orchestration with SQS & ECS
+- Orchestrator Lambda dispatches the request to **4 SQS queues**, each corresponding to a stage:
+  - `Message Extraction`
+  - `Preprocessing & Sentiment Analysis`
+  - `Insight Generation (LLM)`
+  - `PDF Generation`
+- Each queue triggers a dedicated **ECS container** to process its task.
 
-3. Review All the permissions and process to see if everything is working as intended
+#### 3. Shared State via S3
+- Each container reads/writes intermediate results to S3:
+  - Raw messages
+  - Preprocessed insights
+  - Final PDF
+- S3 acts as the pipeline backbone.
 
-## Running in Prod
-1. The system continuously monitors Slack channels based on the bot's presence.
-2. When the /generate_feedback slash command is triggered, the AWS Lambda that does:
-    - Pull recent messages
-    - Process messages via the LLM pipeline
-    - Generate a PDF
-    - Post the PDF back into Slack.
+#### 4. Final Delivery
+- When the PDF is uploaded, an **S3 event** triggers a final Lambda that posts it back to the Slack channel.
 
-# Future steps
-- we will be addding a CI/CD pipeline
+---
 
+## Deployment Steps
+
+1. **AWS Access**
+   - Ensure you can log into the AWS Management Console.
+   - Get access to the IntelliCue AWS account (contact core team).
+
+2. **Lambda Functions**
+   - Located in `lambdas/`.
+   - Each has a `lambda_function.py` entrypoint.
+   - Deploy via AWS Console or CLI.
+
+3. **ECS Containers**
+   - If changes affect a pipeline stage, repackage and redeploy the related container.
+   - ECS handles long-running tasks triggered via SQS queues.
+
+4. **Verification**
+   - Confirm IAM roles, S3 events, and queue permissions are correctly configured.
+
+---
+
+## Running in Production
+
+- IntelliCue monitors Slack channels where the bot is invited.
+- On `/generate_feedback`, the system:
+  - Pulls recent messages
+  - Sends them through the LLM pipeline
+  - Generates a PDF report
+  - Posts the report to Slack
+
+---
 
 ## Local Setup
 
 ### API Token Access
 
-To contribute to the code base, you will need the system to be running locally in order to confirm functionality before making changes. This requires the use of **Slack and Gemini API keys**. These are stored in a `.env` file which is not to be committed due to the file contaning secrets.
+To test locally, you'll need valid **Slack** and **Gemini** API tokens. These must be saved in a `.env` file **(never committed)**.
 
-### 1. Access the Slack App
+### 1. Slack App Access
 
 Contact a core contributor to:
-- Be added to the IntelliCue **development Slack workspace**
-- Gain access to the **Slack API Dashboard**
+- Be added to the **IntelliCue Dev Slack workspace**
+- Get access to the **Slack API Dashboard**
 
 ### 2. Create Your `.env` File
 
-In the project root, create a `.env` file:
+Create a `.env` file in the project root:
 
 ```
 SLACK_APP_TOKEN=<your_app_token_here>
@@ -83,53 +114,56 @@ SLACK_BOT_TOKEN=<your_bot_token_here>
 GEMINI_API_KEY=<your_gemini_key_here>
 ```
 
-### 3. How to Get Each Key
+### 3. Where to Get API Keys
 
 #### Slack API Tokens
 
 1. Go to [Slack API Dashboard](https://api.slack.com/apps)
-2. Select the IntelliCue app (you need access)
-3. In **Basic Information** tab:
-   - Scroll to **App-Level Tokens**
-   - Copy the token labeled “WebSocket” → `SLACK_APP_TOKEN`
-4. In **OAuth & Permissions** tab:
-   - Copy the **Bot User OAuth Token** → `SLACK_BOT_TOKEN`
+2. Select the IntelliCue app
+3. Under **App-Level Tokens** → copy the WebSocket token → `SLACK_APP_TOKEN`
+4. Under **OAuth & Permissions** → copy the Bot OAuth token → `SLACK_BOT_TOKEN`
 
 #### Gemini API Key
 
-1. Go to [Google AI Studio](https://aistudio.google.com/app/)
-2. In the sidebar, click **Get API Key**
-3. Create a new key
-4. Paste it into `.env` as `GEMINI_API_KEY`
+1. Visit [Google AI Studio](https://aistudio.google.com/app/)
+2. Click **Get API Key**
+3. Generate and copy your key
+4. Paste it as `GEMINI_API_KEY` in `.env`
 
 ---
 
-We use Python 3.10+ with a virtual environment. To setup, follow the instructions below
+## Python Environment
+
+We use **Python 3.10+**.
 
 ```bash
-# Setup virtual environment
+# Create virtual environment
 python3 -m venv venv
-source venv/bin/activate   # On Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install dependencies
+# Install all dependencies
 pip install -r requirements.txt
 ```
 
 ---
 
-## Running the App Locally
+## Running Locally
 
-> ⚠️ **Note:** Please make sure you are working on the `demo-branch` when running or testing IntelliCue. This branch reflects the current stable demo configuration.
+While production testing is handled via AWS Console and real-time Slack commands, developers should **simulate the pipeline locally**. Use JSON files to chain outputs between modules and test each feature individually.
+
+For example:
+- Run message extraction
+- Save output to `message.json`
+- Load `message.json` into the next stage (e.g., preprocessing)
+
+This allows you to test full pipeline flow **without needing live SQS or S3**.
+
+To run the orchestrated demo:
 
 ```bash
+# Make sure you're on demo-branch
 python run_pipeline_demo.py
 ```
-
-This will:
-- Start the Slack app in socket mode (your machine acts as a WebSocket client)
-- Wait for Slack messages (you will need to run the `/generate_feedback` command in a slack channel with the bot invited)
-- Preprocess incoming data and run it through the LLM pipeline
-- Output insights locally and (in Slack) to `#all-intellicue` channel
 
 ---
 
@@ -139,24 +173,30 @@ This will:
 pytest --cov=src tests/
 ```
 
-- Tests live in `tests/`
-- Slack and AWS APIs are **mocked**:
-  - `moto` mocks AWS (e.g. `boto3`)
-  - `requests_mock` or `unittest.mock` for Slack Web API
+- All tests are under `tests/`
+- AWS and Slack APIs are mocked:
+  - `moto` for AWS (e.g., S3, SQS)
+  - `requests_mock` or `unittest.mock` for Slack
 
-You do **not** need real tokens for testing.
+> If you encounter import issues, try:
+
+```bash
+PYTHONPATH=. pytest tests/
+```
+
+You do **not** need real API tokens to run tests.
 
 ---
 
-## Adding New Tests
+## Writing New Tests
 
-- Use the naming convention: `test_<feature>.py`
-- Tests should:
-  - Cover both core logic and edge cases
-  - Mock external calls (Slack, AWS)
-- Target code coverage: **≥80% per file** (enforced by CI)
+- Use `test_<feature>.py` naming
+- Each test should:
+  - Mock all external dependencies
+  - Cover normal + edge cases
+- Maintain **≥80% code coverage per file**
 
-Example test file:
+Example:
 
 ```python
 # tests/test_pipeline.py
@@ -167,24 +207,28 @@ def test_preprocess_message_removes_noise():
 
 ---
 
-## Continuous Integration
+## Continuous Integration (CI)
 
-CI is managed via **GitHub Actions**:
+CI is powered by **GitHub Actions** and runs on every push or pull request.
 
-- Runs on all pushes and PRs
-- Performs:
-  - `pytest` with coverage
-  - Linting via flake8 to enfoce Python PEP 8 Standards
-- Test failures or linting errors will block merges
+Checks include:
+- Test suite (`pytest --cov`)
+- Code linting via `flake8` for PEP 8 compliance
+
+> CI failures **block merges** into `main`.
 
 ---
 
 ## Build & Release Process
 
-- No formal release tagging yet
-- The Slack app is **not published** (runs locally via socket mode)
-- All deployment is local or manual for now
-- Publishing to Slack Marketplace is a future stretch goal
+- No versioned releases yet
+- Slack app is **not published** (runs in private dev workspace via socket mode)
+- Manual deploys to AWS for now
+- Slack App Marketplace publishing is a future goal
 
-## Additional Notes:
-- We use Amazon Simple Queue Service (SQS) to manage requests and send JSON files between each individual micro-service or feature. If you are encountering issues with PDF generation stalling out, check to see for a backlog of messages in each queue to find the bottleneck.
+---
+
+## Additional Notes
+
+- We use **Amazon SQS** to manage message flow across pipeline stages.
+- If a stage hangs (e.g., PDF generation), check the corresponding **SQS queue for backlog** to identify bottlenecks.

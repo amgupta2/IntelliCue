@@ -1,107 +1,116 @@
-
 # IntelliCue User Guide
 
-This document is the user manual and contains information for what IntelliCue is, how to install and use it, and if needed, report bugs back to us for continual improvement.
+This guide helps you understand what IntelliCue is, how to install and use it in your Slack workspace, and how to report issues or contribute to its improvement.
 
 ---
 
-## Description
+## What is IntelliCue?
 
-**IntelliCue** is an automated feedback tool for Slack that uses large language models (LLMs) to analyze conversations and generate insightful, PDF-based feedback reports. Designed for teams who want continuous feedback without interrupting workflows, IntelliCue replaces surveys with real-time analysis of Slack messages unqiue to you.
+**IntelliCue** is an automated feedback tool for Slack that uses large language models (LLMs) to generate insightful, anonymized PDF-based reports from your teamâ€™s messages. It helps teams:
 
-Instead of relying on tedious forms or low-response surveys, IntelliCue scans Slack messages from channels you select, runs them through a secure AI pipeline, and provides concise, anonymized feedback that helps managers and teams understand employee morale, identify themes, and track positive/negative trends over time.
+- Get continuous feedback without surveys
+- Understand morale and communication tone
+- Identify key themes, complaints, and improvements
+
+All analysis is done securely via an AI pipeline - no manual tagging or setup needed.
 
 ---
 
-## Software Installation
+## Quick Start
 
-To install IntelliCue:
+### Requirements
+- A Slack workspace with permission to install third-party apps
+- Permission to invite bots to public and private channels
+- No API keys or additional software required
 
-For Local Set up:
-1. **Go to the [Slack App Marketplace](https://slack.com/apps)** and search for **IntelliCue**.
-2. Click **Add to Slack**.
-3. During installation, you’ll be prompted to approve a list of permissions. These are required so IntelliCue can:
-   - Access messages from specific channels (you’ll choose them)
-   - Respond to slash commands you invoke
-4. After installation, invite IntelliCue to any public or private channels where you'd like it to collect feedback:
+### Installation
+
+#### Option 1: IntelliCue Demo Workspace
+
+> If the app hasn't been published to the Slack Marketplace yet:
+
+1. Join our [IntelliCue demo workspace](https://join.slack.com/t/intellicue/shared_invite/zt-368ufefd1-T22gsbVr6m48qFEePu7m3Q)
+2. Create or join a channel for testing (public or private)
+3. Invite IntelliCue to that channel using:
    ```bash
    /invite @IntelliCue
    ```
-5. Grant message-reading permission as requested (you will be guided through a Slack-native authorization flow).
 
-For AWS Deployment(Production Set up):
-1. IntelliCue is already deployed on AWS. You do not need to install or host anything.
+#### Option 2: Slack Marketplace (Future) - NOT IMPLEMENTED
 
-**Prerequisites**:
-- A Slack workspace with permission to install third-party apps.
-- Workspace members must have permission to invite bots to channels.
-- No third-party tools or software required. All AI processing is handled on our secure backend — **users do not need any API keys.**
+1. Visit the [Slack App Marketplace](https://slack.com/apps) and search for **IntelliCue**
+2. Click **Add to Slack**
+3. Approve the permission prompts (message reading, slash commands)
+4. Invite IntelliCue to any channel you'd like it to analyze:
+   ```bash
+   /invite @IntelliCue
+   ```
+5. Complete the Slack-native message permission flow
 
 ---
 
-## Running the Software
+## Running IntelliCue
 
-Once installed:
-
-Local Set Up:
-1. Go to any channel IntelliCue has been invited to.
-2. Run the following slash command:
+1. Ensure messages have been posted in the past 7 days
+   
+2. Run the slash command in the `#all-intellicue` channel:
    ```bash
    /generate_feedback
    ```
-3. Within 1–2 minutes (local depoloyment) or 4-5 minutes (AWS), IntelliCue will analyze the past 7 days of conversation in that channel and return a **PDF report** with:
-   - Sentiment breakdown
-   - Key themes
-   - Suggested improvements
-   - Summary insights
-4. The report will appear directly in the Slack channel where the command was issued.
 
+3. IntelliCue will:
+   - Analyze the conversation history
+   - Generate a PDF report with:
+     - Sentiment breakdown
+     - Key themes
+     - Suggested improvements
+     - Summary insights
+  
+4. The PDF will appear in-channel, within 5-6 minutes
 
-**Note**: You can only run the `/generate_feedback` command in channels where IntelliCue is present and has permission to read messages.
- 
+> Note: `/generate_feedback` only works in channels where IntelliCue is present and authorized to read messages.
 
 ---
 
-## Using the Software
+## Tips for Use
 
-- **Feedback frequency**: You can run `/generate_feedback` anytime. Daily or weekly use is recommended for ongoing feedback cycles.
-- **Private channels**: IntelliCue works in private channels, but must be explicitly invited and granted permission.
-- **Multiple channels**: IntelliCue can be used in multiple channels concurrently.
-- **PDF storage**: Generated PDFs are posted in-channel and also stored securely in the cloud. Your Slack data is never stored beyond what's needed for inference.
+- **Frequency**: Run the command as often as needed (e.g., weekly)
+- **Multiple Channels**: Can analyze any number of channels in parallel
+- **Data Storage**: Slack messages are not stored long-term. PDFs are securely uploaded to cloud storage (read-only access)
 
-**Work in progress**:
-- Scheduled auto-feedback (e.g., weekly reports sent automatically)
-- Feedback dashboards with trend graphs, providing more specifc analytics
-- Custom analysis range (date filtering)
-- Using feedback generated from the past as context for new feedback (better trend tracking)
+---
+
+## Upcoming Features
+
+We are working on:
+
+- **Slack Marketplace Availability**
+- **Scheduled Reports** (auto-run feedback weekly)
+- **Feedback Dashboards** (visualize trends over time)
+- **Custom Date Filtering** for reports
+- **Feedback Memory**: use past reports to inform new ones
 
 ---
 
 ## Reporting Bugs
 
-If you encounter issues, please submit a bug report via our [GitHub Issues Tracker](https://github.com/amgupta2/IntelliCue/issues).
+Found something broken? Submit a bug at our [GitHub Issues Tracker](https://github.com/amgupta2/IntelliCue/issues).
 
-When reporting a bug, include:
-- A clear description of the issue
+Please include:
+- Summary of the issue
 - Steps to reproduce
-- What you expected to happen
-- What actually happened
-- Screenshots (if relevant)
-- Slack channel name (if applicable)
-- Whether the issue involved a private or public channel
+- Expected vs. actual behavior
+- Screenshots (if applicable)
+- Channel name and whether it was public or private
 
-Please use the “Bug Report” template in the GitHub Issues tab to ensure all required details are captured.
+Use the prefilled **Bug Report template** on GitHub for consistency.
 
 ---
 
-## Known Bugs
+## Known Issues
 
-- In some rare cases, the feedback PDF generated by `/generate_feedback` may be returned as a **blank document** in Slack. This happens intermittently and is under active investigation. If this occurs, please rerun the command or report it using the steps above.
-
-All other known issues are tracked [here](https://github.com/amgupta2/IntelliCue/issues?q=is%3Aissue+is%3Aopen+label%3Abug).
+See all known bugs [here](https://github.com/amgupta2/IntelliCue/issues?q=is%3Aissue+is%3Aopen+label%3Abug).
 
 ---
 
-## 
-Thank you for using IntelliCue!
-
+Thanks for using IntelliCue!
