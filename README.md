@@ -22,13 +22,39 @@ Extract keywords from slack messages and emails and automate weekly emails with 
 | Dev Tools         | `tools/`        | Scripts for deploying Lambdas, mocking Slack events, and running pipelines locally. |
 | Documentation     | `documentation/`| User and Developer Guides for using and contributing to IntelliCue.    |
 
+Please find the Developer Docs and the User docs here:
+- [User Guide](documentation/USER.md) - Complete guide for using IntelliCue
+- [Developer Guide](documentation/DEVELOPER.md) - Detailed guide for developers contributing to IntelliCue
 
+## AWS Deployment (Production Use)
+⚠️ Note: IntelliCue is now hosted on AWS for production use. Local setup is only needed for development and testing.
 
-## How to Run / Local Setup (DEMO CODE)
+For production use, IntelliCue is always running and fully deployed on AWS. No local setup is needed.
 
-> ⚠️ **Note:** Please make sure you are working on the `demo-branch` when running, testing, or building IntelliCue. This branch reflects the current stable demo configuration.
+### How to Use IntelliCue (AWS)
+1. Go to any Slack channel where IntelliCue is present or add the Intellue bot to a new channel.
 
-Currently, IntelliCue can only be ran locally in a development workspace for accessing the Slack API. It is not configured with AWS meaning we are using local file creation to create JSON objects instead of utilizing the Databases and Step Function. IntelliCue is setup in socket mode meaning that it cannot be published on the Slack App Marketplcae and your network must allow network requests since your laptop will be acting as the host. For the preprocessing use cases, IntelliCue is configured with a very basic preprocessing script to anonymize messages, filter our basic noise such as user joining channels, and then uses sentiment analsysis that still needs to be tuned.
+2. Post new messages or use existing conversations in the channel.
+
+3. Go to the IntelliCue channel.
+
+4. Run the following slash command:
+   ```bash
+   /generate_feedback
+   ```
+
+5. Within 4-5 minutes, IntelliCue will analyze all conversation and return a PDF report with:
+   - Sentiment breakdown
+   - Key themes
+   - Suggested improvements
+   - Summary insights
+
+The PDF report will be posted directly in the IntelliCue Slack channel.
+
+## How to Run / Local Setup
+
+IntelliCue is fully deployed and running on AWS for production use. Currently, the application is exclusively available in the IntelliCue workspace and is not published on the Slack App Marketplace. If you'd like to deploy IntelliCue in your own workspace, please contact the IntelliCue team. For development and testing purposes, you can run the application locally by following the setup instructions below. IntelliCue uses socket mode for local development, so your network must allow WebSocket connections when running locally. The local setup includes all core functionalities including message preprocessing, anonymization, sentiment analysis, and insight generation.
+
 
 ### Step 0: Access Setup
 Contact the IntelliCue team via Slack to be added to:
@@ -37,10 +63,9 @@ Contact the IntelliCue team via Slack to be added to:
 
 ---
 
-### Step 1: Get the Demo Code
+### Step 1: Get the Main Code
 ```bash
 # Clone code locally
-git checkout demo-branch
 git pull
 
 # Setup virtual environment

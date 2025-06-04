@@ -29,8 +29,41 @@ Since we are using a single respository, we do not have any other submodules. As
 | Documentation / Guides  | `documentation/`       | Developer and User Guides on how to contribute to and use IntelliCue           |
 
 ---
+## AWS Depolyment
+IntelliCue is deployed on AWS using Lambda functions. The system is configured for always-on operation without requiring local runtime.
 
-## API Token Access
+## Depoylment Steps
+
+1. AWS Account Access
+- Ensure you have access to the AWS Management Console.
+- Get permissions to the IntelliCue AWS account (contact core team).
+
+
+2. AWS Lambda Functions
+- Code for Lambdas is located in the lambdas/ directory.
+- Each Lambda has a lambda_function.py entry point.
+- The Lambdas are packaged and deployed manually via the AWS Console or CLI.
+- All the API's are already placed within the AWS
+
+3. Any changes made to any part of the sytem, developers will need to repackage and redeploy the specific container inside of eleastic container service (ECS)
+
+3. Review All the permissions and process to see if everything is working as intended
+
+## Running in Prod
+1. The system continuously monitors Slack channels based on the bot's presence.
+2. When the /generate_feedback slash command is triggered, the AWS Lambda that does:
+    - Pull recent messages
+    - Process messages via the LLM pipeline
+    - Generate a PDF
+    - Post the PDF back into Slack.
+
+# Future steps
+- we will be addding a CI/CD pipeline
+
+
+## Local Setup
+
+### API Token Access
 
 To contribute to the code base, you will need the system to be running locally in order to confirm functionality before making changes. This requires the use of **Slack and Gemini API keys**. These are stored in a `.env` file which is not to be committed due to the file contaning secrets.
 
@@ -70,8 +103,6 @@ GEMINI_API_KEY=<your_gemini_key_here>
 4. Paste it into `.env` as `GEMINI_API_KEY`
 
 ---
-
-## Local Setup
 
 We use Python 3.10+ with a virtual environment. To setup, follow the instructions below
 
@@ -155,37 +186,5 @@ CI is managed via **GitHub Actions**:
 - All deployment is local or manual for now
 - Publishing to Slack Marketplace is a future stretch goal
 
-## Developer Notes
-
-- **Socket Mode**: The app listens via WebSocket — your network **must allow outbound connections**.
-- If nothing happens after a slash command, confirm your bot tokens are correct and the app is running.
-- If you're creating a new Lambda, place it in its own folder in `lambdas/` and follow AWS packaging guidelines.
-
-## AWS Depolyment
-IntelliCue is deployed on AWS using Lambda functions. The system is configured for always-on operation without requiring local runtime.
-
-##Depoylment Steps
-
-1. AWS Account Access
-- Ensure you have access to the AWS Management Console.
-- Get permissions to the IntelliCue AWS account (contact core team).
-
-
-2. AWS Lambda Functions
-- Code for Lambdas is located in the lambdas/ directory.
-- Each Lambda has a lambda_function.py entry point.
-- The Lambdas are packaged and deployed manually via the AWS Console or CLI.
-- All the API's are already placed within the AWS
-
-3. Review All the permissions and process to see if everything is working as intended
-
-## Running in Prod
-1. The system continuously monitors Slack channels based on the bot's presence.
-2. When the /generate_feedback slash command is triggered, the AWS Lambda that does:
-    - Pull recent messages
-    - Process messages via the LLM pipeline
-    - Generate a PDF
-    - Post the PDF back into Slack.
-
-# Future steps
-- we will be addding a CI/CD pipeline
+## Additional Notes:
+- We use Amazon Simple Queue Service (SQS) to manage requests and send JSON files between each individual micro-service or feature. If you are encountering issues with PDF generation stalling out, check to see for a backlog of messages in each queue to find the bottleneck.
